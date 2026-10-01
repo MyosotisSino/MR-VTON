@@ -10,7 +10,7 @@
 
 ## 访问
 
-<https://myosotisino.github.io/MR-VTON/>
+<https://myosotissino.github.io/MR-VTON/>
 
 ## 说明
 
