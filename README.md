@@ -5,7 +5,7 @@
 给定同一张 source 人物图与若干件服装/配饰参考图及一条编辑指令，横向对比各开源/闭源模型的推理输出。
 
 - 样本：20 例（持续补充中）
-- 参评模型：9 个 —— qwen-image-2.1（cfg=4）、qwen-image-2.1（cfg=1）、qwen-image-2.1-turbo、qwen-image-edit-2511、flux2-klein-base-9b、flux2-klein-base-4b、firered-image-edit-1.1，以及 ours-1018（cfg=4）、ours-1018（cfg=1）两个我方模型（持续更新中）
+- 参评模型：11 个 —— qwen-image-2.1（cfg=4）、qwen-image-2.1（cfg=1）、qwen-image-2.1-turbo、qwen-image-edit-2511、flux2-klein-base-9b、flux2-klein-base-4b、firered-image-edit-1.1，以及 ours-1018（cfg=4）、ours-1018（cfg=1）、ours-1023（cfg=4）、ours-1023（cfg=1）四个我方模型（持续更新中）
 - 榜单：质量分、耗时、以及质量 × 耗时/参数量的散点分布
 
 ## 访问
