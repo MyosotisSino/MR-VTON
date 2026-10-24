@@ -112,7 +112,7 @@ body.editing .hs-ds:focus,body.editing .hs-n:focus{outline:2px solid var(--text)
   min-height:110px;background:transparent;padding:14px;font:inherit;transition:all .15s ease-out}
 .add-card:hover{background:var(--grey-10);border-color:var(--grey-800);color:var(--text)}
 .add-card .plus{font-size:26px;font-weight:300;line-height:1}
-body.editing .model-card{cursor:grab;touch-action:none}
+body.editing .model-card{cursor:pointer}
 body.editing .model-card:hover{box-shadow:0 10px 28px rgba(18,19,23,.12)}
 body.editing .rank-chip{cursor:grab;touch-action:none}
 body.editing .model-card,.rank-chip{user-select:none;-webkit-user-select:none}
@@ -121,7 +121,6 @@ body.editing .model-card,.rank-chip{user-select:none;-webkit-user-select:none}
 .dragging{cursor:grabbing!important;z-index:80;will-change:transform;
   filter:blur(1px) saturate(1.08);
   box-shadow:0 0 0 2px var(--grey-0),0 0 0 4px rgba(18,19,23,.35),0 28px 56px rgba(18,19,23,.28)!important}
-.drag-anim{transition:transform .3s var(--ease-out-expo)}
 
 /* ---------- sample card ---------- */
 .card{background:rgba(255,255,255,.8);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
@@ -184,15 +183,19 @@ body.editing .out:hover .out-remove{display:inline-flex}
 .out-add:hover{background:var(--grey-10);border-color:var(--grey-800);color:var(--text)}
 .out-add .plus{font-size:30px;font-weight:300;line-height:1}
 
-/* ---------- rank ---------- */
+/* ---------- rank（名牌竖排：名称自下而上、顶朝左底朝右，一行紧凑排布，拖动不用跨行） ---------- */
 .rank-area:empty{display:none}
-.rank-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:var(--sp-lg)}
+.rank-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch;margin-top:var(--sp-lg)}
 .rank-cap{font-size:14.5px;color:var(--text-2);margin-right:4px}
-.rank-chip{display:inline-flex;align-items:center;gap:8px;background:var(--grey-10);
-  border:1px solid var(--outline-2);border-radius:var(--r-pill);padding:5px 12px 5px 6px;
-  font-size:13px;transition:border-color .15s ease-out}
+.rank-chip{display:inline-flex;align-items:center;justify-content:space-between;gap:8px;background:var(--grey-10);
+  border:1px solid var(--outline-2);border-radius:var(--r-pill);padding:12px 5px 6px;
+  font-size:13px;transition:border-color .15s ease-out;
+  writing-mode:vertical-rl}
+/* sideways-lr 才是目标形态：自下而上、字面朝左（顶部朝左、底部朝右）；
+   不支持的浏览器退回 vertical-rl（自上而下、字面朝右），布局仍是竖排 */
+@supports (writing-mode:sideways-lr){.rank-chip{writing-mode:sideways-lr}}
 .rank-chip .rk{font-family:var(--mono);font-size:11.5px;color:var(--text-2);background:var(--grey-0);
-  border:1px solid var(--outline-2);border-radius:var(--r-pill);padding:1px 8px}
+  border:1px solid var(--outline-2);border-radius:var(--r-pill);padding:8px 2px}
 body.editing .rank-chip{cursor:grab}
 body.editing .rank-chip:hover{border-color:var(--outline)}
 
@@ -549,7 +552,6 @@ function renderMeta() {
     var ct = contrastText(m.color);
     var el = document.createElement('div');
     el.className = 'meta model-card';
-    el.setAttribute('data-drag', 'model');
     el.setAttribute('data-mid', m.id);
     el.style.background = m.color;
     el.style.color = ct;
@@ -866,17 +868,24 @@ function enableDrag(container, itemSel, onOrder, opts) {
       try { item.setPointerCapture(e.pointerId); } catch (_) { }
     }
     function items() { return $$(itemSel, container).filter(function (el) { return el !== item; }); }
-    function flip(others) {
+    /* 邻居换位动画：WAAPI 可打断续接，每次从当前视觉位置滑向新落点。
+       旧实现（class + 内联 transform + 延时清除）在快速连换时互相掐断，表现是抖动闪烁 */
+    function glide(others) {
+      if (reduce || !('animate' in Element.prototype)) return;
       others.forEach(function (o) {
+        if (o.el.__glide) { try { o.el.__glide.cancel(); } catch (_) { } }
         var n = o.el.getBoundingClientRect();
         var ddx = o.rect.left - n.left, ddy = o.rect.top - n.top;
-        if (ddx || ddy) {
-          o.el.classList.add('drag-anim');
-          o.el.style.transform = 'translate(' + ddx + 'px,' + ddy + 'px)';
-          o.el.getBoundingClientRect();
-          o.el.style.transform = '';
-          setTimeout(function () { o.el.classList.remove('drag-anim'); o.el.style.transform = ''; }, 350);
-        }
+        if (ddx || ddy) o.el.__glide = o.el.animate(
+          [{ transform: 'translate(' + ddx + 'px,' + ddy + 'px)' }, { transform: 'translate(0px,0px)' }],
+          { duration: 280, easing: 'cubic-bezier(.19,1,.22,1)' });
+      });
+    }
+    /* 拖动中同步刷新名次编号（rank 区专用；其它容器无 .rk 自动跳过） */
+    function renumber() {
+      $$(itemSel, container).forEach(function (el, i) {
+        var rk = el.querySelector('.rk');
+        if (rk) rk.textContent = 'Rank ' + (i + 1);
       });
     }
     function onMove(ev) {
@@ -887,27 +896,32 @@ function enableDrag(container, itemSel, onOrder, opts) {
       }
       var px = ev.clientX, py = ev.clientY;
       item.style.transform = 'translate(' + (px - base.x - dx) + 'px,' + (py - base.y - dy) + 'px) scale(1.05)';
-      var best = null, bd = 1e18;
-      items().forEach(function (el) {
-        var r = el.getBoundingClientRect();
-        var cx = r.left + r.width / 2, cy = r.top + r.height / 2;
-        var d = (px - cx) * (px - cx) + (py - cy) * (py - cy);
-        if (d < bd) { bd = d; best = { el: el, r: r }; }
-      });
-      if (best) {
-        /* 按索引决定插入侧：拖动项越过哪个邻居，就换到它的位置——换行布局与快速拖动都稳定 */
+      /* 逐格换位：只和 DOM 相邻项换，越过邻居中心再走 8px 才触发（死区，防止在两块名牌中线附近来回抖）；
+         循环到不再越过为止，快速甩动也能一口气追上目标位 */
+      for (var guard = 0; guard < 32; guard++) {
         var list = $$(itemSel, container);
-        var di = list.indexOf(item), bi = list.indexOf(best.el);
-        if (bi !== di) {
-          var before = bi < di;
-          var others = items().map(function (el) { return { el: el, rect: el.getBoundingClientRect() }; });
-          container.insertBefore(item, before ? best.el : best.el.nextElementSibling);
-          flip(others);
-          item.style.transform = 'none';
-          var r2 = item.getBoundingClientRect();
-          base = { x: r2.left, y: r2.top };
-          item.style.transform = 'translate(' + (px - base.x - dx) + 'px,' + (py - base.y - dy) + 'px) scale(1.05)';
+        var di = list.indexOf(item), t = null, before = false;
+        if (di > 0) {
+          var L = list[di - 1], r = L.getBoundingClientRect();
+          var cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+          var hz = Math.abs(px - cx) >= Math.abs(py - cy);
+          if (hz ? px < cx - 8 : py < cy - 8) { t = L; before = true; }
         }
+        if (!t && di < list.length - 1) {
+          var R = list[di + 1], r2 = R.getBoundingClientRect();
+          var cx2 = r2.left + r2.width / 2, cy2 = r2.top + r2.height / 2;
+          var hz2 = Math.abs(px - cx2) >= Math.abs(py - cy2);
+          if (hz2 ? px > cx2 + 8 : py > cy2 + 8) { t = R; before = false; }
+        }
+        if (!t) break;
+        var others = items().map(function (el) { return { el: el, rect: el.getBoundingClientRect() }; });
+        container.insertBefore(item, before ? t : t.nextElementSibling);
+        glide(others);
+        renumber();
+        item.style.transform = 'none';
+        var rb = item.getBoundingClientRect();
+        base = { x: rb.left, y: rb.top };
+        item.style.transform = 'translate(' + (px - base.x - dx) + 'px,' + (py - base.y - dy) + 'px) scale(1.05)';
       }
     }
     function finish(isUp) {
@@ -1109,17 +1123,13 @@ function exitEdit() {
 
 /* ================= hero model list interactions ================= */
 var metagrid = $('#metagrid');
-enableDrag(metagrid, '.model-card', function () {
-  staged.models = $$('.model-card', metagrid).map(function (el) {
-    return getModel(el.getAttribute('data-mid'));
-  }).filter(Boolean);
-  op('reorder', 'models');
-  renderMeta();
-  renderAllSamples();
-  renderLeaderboard();
-}, { onItemClick: function (item, e) {
-  openModelPop(item.getAttribute('data-mid'), item); // 图标更换统一在换色板里选“纯色/自定义”
-} });
+/* 模型卡不做拖动（排序以数据文件里的模型顺序为准），点击直接开换色板；
+   换图标也在换色板里选“纯色/自定义” */
+metagrid.addEventListener('click', function (e) {
+  if (!editing) return;
+  var card = e.target.closest('.model-card');
+  if (card) openModelPop(card.getAttribute('data-mid'), card);
+});
 function refreshIconOpts(m) {
   var raw = pop.querySelector('[data-icon-raw]'), up = pop.querySelector('[data-icon-up]');
   if (!raw || !up) return;
