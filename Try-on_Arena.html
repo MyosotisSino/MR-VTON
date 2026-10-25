@@ -91,19 +91,21 @@ body.editing .hs-ds:focus,body.editing .hs-n:focus{outline:2px solid var(--text)
 .hs-n.bad,.hs-ds.bad{outline-color:var(--danger)!important}
 /* ---------- 模型卡区：hero 结束后的第一段 ---------- */
 .model-zone{padding:0 0 var(--sp-2xl)}
-.metagrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:var(--sp-md)}
-@media(min-width:1024px){.metagrid{grid-template-columns:repeat(3,1fr)}}
+.metagrid{display:flex;flex-direction:column;gap:10px}
 .meta{background:rgba(255,255,255,.62);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
   border:1px solid var(--outline-2);border-radius:var(--r-md);padding:18px 20px}
 .sub{color:var(--text-2);max-width:680px;margin:36px auto 0;font-size:15px;text-align:center}
 
-/* ---------- model cards (hero list) ---------- */
+/* ---------- model cards（横长条：icon 发布单位 名称 尺寸 附加属性×2，按发布单位首字母纵排） ---------- */
 .model-card{position:relative}
-.model-card .m-head{display:flex;align-items:center;gap:12px;min-width:0}
-.model-card .m-name{font-size:15px;font-weight:450;letter-spacing:-.01em;word-break:break-word}
-.model-card .m-size{margin-left:auto;flex:0 0 auto;font-family:var(--mono);font-size:11px;
+.model-card .m-row{display:flex;align-items:center;gap:12px;min-width:0;flex-wrap:wrap}
+.model-card .m-pub{flex:0 0 auto;font-size:12px;font-weight:500;letter-spacing:.02em;
+  background:rgba(255,255,255,.30);border-radius:var(--r-pill);padding:3px 12px;white-space:nowrap}
+.model-card .m-name{font-size:16px;font-weight:450;letter-spacing:-.01em;min-width:0;word-break:break-all}
+.model-card .m-size{flex:0 0 auto;font-family:var(--mono);font-size:11px;
   border:1px solid currentColor;border-radius:var(--r-pill);padding:2px 10px;opacity:.9}
-.model-card .m-sub{font-size:12px;margin:4px 0 0;opacity:.92;word-break:break-word}
+.model-card .m-param{flex:0 0 auto;font-family:var(--mono);font-size:12px;
+  background:rgba(255,255,255,.24);border-radius:8px;padding:3px 10px;white-space:nowrap}
 .m-icon{display:inline-flex;overflow:hidden;flex:0 0 auto;border-radius:6px}
 .model-card .m-icon{box-shadow:inset 0 0 0 1px rgba(127,127,127,.35)}
 .m-icon img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
@@ -121,6 +123,48 @@ body.editing .model-card,.rank-chip{user-select:none;-webkit-user-select:none}
 .dragging{cursor:grabbing!important;z-index:80;will-change:transform;
   filter:blur(1px) saturate(1.08);
   box-shadow:0 0 0 2px var(--grey-0),0 0 0 4px rgba(18,19,23,.35),0 28px 56px rgba(18,19,23,.28)!important}
+
+/* ---------- sample viewer（样本区单页翻动） ---------- */
+.sample-viewer{margin-top:var(--sp-lg)}
+.viewer-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 2px 10px}
+.vb-title{font-size:14.5px;color:var(--text-2);letter-spacing:.01em}
+.vb-pick{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--outline-2);
+  background:rgba(255,255,255,.72);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  border-radius:var(--r-pill);padding:7px 16px;font:450 13.5px/1.2 var(--sans);color:var(--text);
+  cursor:pointer;transition:all .15s ease-out}
+.vb-pick:hover{background:var(--grey-0);border-color:var(--outline)}
+.vb-pick b{font-family:var(--mono);font-weight:500;font-size:13px;letter-spacing:-.01em}
+.vb-sep{color:var(--text-3);font-family:var(--mono);font-size:12px}
+.vb-caret{color:var(--text-3);font-size:10px}
+.vb-right{display:flex;align-items:center;gap:10px}
+.vb-hint{font-size:12.5px;color:var(--text-3)}
+@media(max-width:1024px){.vb-hint{display:none}}
+.viewer-stage{position:relative}
+.viewer-stage>article.card{display:none}
+.viewer-stage>article.card.active{display:block;animation:pgIn .3s var(--ease-out-expo)}
+@keyframes pgIn{from{opacity:0;transform:translateX(var(--pgx,26px))}to{opacity:1;transform:none}}
+.pg-rail{position:absolute;top:0;bottom:0;width:44px;pointer-events:none;z-index:5}
+.pg-l{left:-58px}.pg-r{right:-58px}
+.pg-arrow{position:sticky;top:44vh;pointer-events:auto;display:flex;align-items:center;justify-content:center;
+  width:44px;height:44px;border-radius:var(--r-pill);border:1px solid var(--outline-2);
+  background:rgba(255,255,255,.8);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  color:var(--text);font-size:24px;line-height:1;cursor:pointer;padding:0;
+  box-shadow:0 6px 18px rgba(18,19,23,.08);transition:all .15s ease-out}
+.pg-arrow:hover{background:var(--grey-0);border-color:var(--outline);transform:translateY(-1px)}
+.pg-arrow:disabled{opacity:.25;cursor:default;pointer-events:none;transform:none}
+.digrow{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 4px}
+.dig{width:32px;height:32px;border-radius:10px;border:1px solid var(--outline-2);background:var(--grey-0);
+  font:450 13.5px var(--mono);color:var(--text);cursor:pointer;transition:all .12s ease-out;padding:0}
+.dig:hover{background:var(--grey-10)}
+.dig.active{background:var(--grey-1200);border-color:var(--grey-1200);color:var(--grey-0)}
+.dig:disabled{opacity:.25;cursor:default;pointer-events:none}
+@media(max-width:1024px){
+  .pg-l{left:6px}.pg-r{right:6px}
+  .pg-arrow{background:rgba(255,255,255,.88)}
+  /* 窄屏箭头浮在卡片内容上，置灰的箭头没有信息量，直接隐藏 */
+  .pg-arrow:disabled{display:none}
+}
+@media(prefers-reduced-motion:reduce){.viewer-stage>article.card.active{animation:none}}
 
 /* ---------- sample card ---------- */
 .card{background:rgba(255,255,255,.8);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
@@ -158,45 +202,71 @@ body.editing .model-card,.rank-chip{user-select:none;-webkit-user-select:none}
 .cap .txt .ref:hover{background:rgba(255,255,255,.28)}
 .cap .fn{font-size:12.5px;color:var(--grey-300);margin:12px 0 0;font-family:var(--mono)}
 
-/* ---------- outputs ---------- */
-.outs{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:var(--sp-lg)}
-.out{position:relative;border:1px solid var(--outline-2);border-radius:var(--r-lg);overflow:hidden;
+/* ---------- outputs（默认缩半展示，点击进大图浏览） ---------- */
+.outs{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:12px}
+.out{position:relative;border:1px solid var(--outline-2);border-radius:var(--r-md);overflow:hidden;
   background:var(--grey-0);display:flex;flex-direction:column;min-width:0;transition:box-shadow .15s ease-out}
 .out:hover{box-shadow:0 12px 32px rgba(18,19,23,.07)}
-.out-hd{padding:10px 16px;border-bottom:1px solid var(--outline-2);background:var(--grey-10);
-  display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.out-hd .nm{font-weight:450;font-size:15px;font-family:var(--mono);letter-spacing:-.01em;word-break:break-all}
-.out-hd .ms{margin-left:auto;font-size:12.5px;color:var(--text-2);font-family:var(--mono);
-  background:var(--grey-0);border:1px solid var(--outline-2);border-radius:var(--r-pill);padding:2px 10px}
+.out-hd{padding:7px 12px;border-bottom:1px solid var(--outline-2);background:var(--grey-10);
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.out-hd .nm{font-weight:450;font-size:12.5px;font-family:var(--mono);letter-spacing:-.01em;word-break:break-all}
+.out-hd .ms{margin-left:auto;font-size:11px;color:var(--text-2);font-family:var(--mono);
+  background:var(--grey-0);border:1px solid var(--outline-2);border-radius:var(--r-pill);padding:1px 8px}
 .out .ph{background:var(--grey-10);display:flex;align-items:center;justify-content:center;
-  padding:16px;flex:1;min-height:280px}
-.out img{max-width:100%;max-height:560px;display:block;margin:0 auto;border-radius:var(--r-md)}
-.out-remove{display:none;position:absolute;top:10px;right:10px;width:26px;height:26px;
+  padding:8px;flex:1;min-height:140px;cursor:zoom-in}
+.out img{max-width:100%;max-height:280px;display:block;margin:0 auto;border-radius:8px}
+.out-remove{display:none;position:absolute;top:6px;right:6px;width:24px;height:24px;
   border-radius:var(--r-pill);background:rgba(255,255,255,.92);border:1px solid var(--outline-2);
-  color:var(--text-2);font-size:15px;line-height:1;align-items:center;justify-content:center;
+  color:var(--text-2);font-size:14px;line-height:1;align-items:center;justify-content:center;
   cursor:pointer;transition:all .15s ease-out}
 .out-remove:hover{color:var(--danger);border-color:rgba(217,48,37,.4)}
 body.editing .out:hover .out-remove{display:inline-flex}
-.out-add{border:1.5px dashed var(--grey-300);border-radius:var(--r-lg);display:flex;flex-direction:column;
-  align-items:center;justify-content:center;gap:6px;color:var(--text-2);cursor:pointer;min-height:280px;
+.out-add{border:1.5px dashed var(--grey-300);border-radius:var(--r-md);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:6px;color:var(--text-2);cursor:pointer;min-height:140px;
   background:transparent;font:inherit;transition:all .15s ease-out}
 .out-add:hover{background:var(--grey-10);border-color:var(--grey-800);color:var(--text)}
-.out-add .plus{font-size:30px;font-weight:300;line-height:1}
+.out-add .plus{font-size:22px;font-weight:300;line-height:1}
+.ph-hint{font-size:12px;color:var(--text-3);font-weight:400;margin-left:8px;letter-spacing:.01em}
 
-/* ---------- rank（名牌竖排：名称自下而上、顶朝左底朝右，一行紧凑排布，拖动不用跨行） ---------- */
+/* ---------- 大图浏览（点击输出图片） ---------- */
+.lightbox{position:fixed;inset:0;z-index:95;display:none;align-items:center;justify-content:center;
+  background:rgba(18,19,23,.78);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.lightbox.open{display:flex}
+.lbx-card{background:var(--grey-0);border-radius:var(--r-xl);overflow:hidden;max-width:min(92vw,980px);
+  display:flex;flex-direction:column;box-shadow:0 32px 80px rgba(0,0,0,.4)}
+.lbx-hd{display:flex;align-items:center;gap:10px;padding:12px 18px;border-bottom:1px solid var(--outline-2);background:var(--grey-10)}
+.lbx-hd .nm{font-weight:450;font-size:15px;font-family:var(--mono);letter-spacing:-.01em;
+  flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lbx-hd .ms{margin-left:auto;font-size:12.5px;color:var(--text-2);font-family:var(--mono);
+  background:var(--grey-0);border:1px solid var(--outline-2);border-radius:var(--r-pill);padding:2px 10px;flex:0 0 auto}
+.lbx-count{font-family:var(--mono);font-size:12px;color:var(--text-3);white-space:nowrap}
+.lbx-close{background:var(--grey-0);border:1px solid var(--outline-2);color:var(--text-2);
+  width:28px;height:28px;border-radius:var(--r-pill);cursor:pointer;font-size:15px;line-height:1;padding:0}
+.lbx-close:hover{color:var(--danger);border-color:rgba(217,48,37,.4)}
+.lbx-ph{padding:18px;display:flex;align-items:center;justify-content:center;background:var(--grey-0)}
+.lbx-ph img{max-width:min(86vw,920px);max-height:560px;display:block;border-radius:var(--r-md)}
+.lbx-arrow{position:fixed;top:50vh;transform:translateY(-50%);display:flex;align-items:center;justify-content:center;
+  width:46px;height:46px;border-radius:var(--r-pill);border:1px solid rgba(255,255,255,.25);
+  background:rgba(255,255,255,.14);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  color:#fff;font-size:24px;line-height:1;cursor:pointer;transition:all .15s ease-out;padding:0}
+.lbx-arrow:hover{background:rgba(255,255,255,.26)}
+.lbx-arrow:disabled{opacity:.25;cursor:default;pointer-events:none}
+.lbx-prev{left:26px}.lbx-next{right:26px}
+@media(max-width:767px){.lbx-prev{left:8px}.lbx-next{right:8px}.lbx-ph img{max-height:58vh}}
+
+/* ---------- rank（四维小排名：四列并排，列内名牌横排自上而下，拖拽按列隔离） ---------- */
 .rank-area:empty{display:none}
-.rank-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch;margin-top:var(--sp-lg)}
-.rank-cap{font-size:14.5px;color:var(--text-2);margin-right:4px}
-.rank-chip{display:inline-flex;align-items:center;justify-content:space-between;gap:8px;background:var(--grey-10);
-  border:1px solid var(--outline-2);border-radius:var(--r-pill);padding:12px 5px 6px;
-  font-size:13px;transition:border-color .15s ease-out;
-  writing-mode:vertical-rl}
-/* sideways-lr 才是目标形态：自下而上、字面朝左（顶部朝左、底部朝右）；
-   不支持的浏览器退回 vertical-rl（自上而下、字面朝右），布局仍是竖排 */
-@supports (writing-mode:sideways-lr){.rank-chip{writing-mode:sideways-lr}}
+.rank-dims{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:var(--sp-lg)}
+@media(max-width:900px){.rank-dims{grid-template-columns:repeat(2,1fr)}}
+.rank-dim-name{font-size:13px;font-weight:450;color:var(--text-2);margin:0 0 8px;letter-spacing:.01em}
+.rank-bar{display:flex;flex-direction:column;gap:8px}
+.rank-chip{display:inline-flex;align-items:center;gap:8px;background:var(--grey-10);
+  border:1px solid var(--outline-2);border-radius:var(--r-pill);padding:5px 12px 5px 6px;
+  font-size:13px;transition:border-color .15s ease-out}
+.rank-chip .nm{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left}
 .rank-chip .rk{font-family:var(--mono);font-size:11.5px;color:var(--text-2);background:var(--grey-0);
-  border:1px solid var(--outline-2);border-radius:var(--r-pill);padding:8px 2px}
-body.editing .rank-chip{cursor:grab}
+  border:1px solid var(--outline-2);border-radius:var(--r-pill);padding:1px 8px;flex:0 0 auto}
+body.editing .rank-chip{cursor:grab;touch-action:none}
 body.editing .rank-chip:hover{border-color:var(--outline)}
 
 /* ---------- background liquid fx ---------- */
@@ -256,6 +326,8 @@ body>*{position:relative;z-index:1}
 .pop-btn.ok{width:100%;justify-content:center;background:var(--grey-1200);color:var(--grey-0);
   border-color:var(--grey-1200)}
 .pop-btn.ok:hover{background:var(--grey-1000)}
+.pop-btn.ok:disabled{opacity:.45;cursor:default}
+.pop-btn.ok:disabled:hover{background:var(--grey-1200)}
 .pop-input.bad{border-color:var(--danger)}
 .dlg input[type=text].bad{border-color:#E94335}
 .pop-btn.del{color:var(--danger);background:var(--grey-0);border-color:rgba(217,48,37,.35);width:100%;justify-content:center}
@@ -281,6 +353,59 @@ body>*{position:relative;z-index:1}
   background:var(--grey-1200);color:var(--grey-0);border-radius:var(--r-pill);padding:10px 22px;
   font-size:13.5px;opacity:0;transition:all .35s var(--ease-out-expo);z-index:90;pointer-events:none}
 .toast.show{opacity:1;transform:translateX(-50%)}
+
+/* ---------- 六维雷达 ---------- */
+.radar-card{min-height:0;padding-bottom:var(--sp-lg)}
+.radar-nav{display:flex;align-items:center;gap:12px;margin-top:var(--sp-lg);flex-wrap:wrap}
+.rd-arrow{flex:0 0 auto;display:flex;align-items:center;justify-content:center;width:38px;height:38px;
+  border-radius:var(--r-pill);border:1px solid var(--outline-2);background:var(--grey-0);color:var(--text);
+  font-size:20px;line-height:1;cursor:pointer;transition:all .15s ease-out;padding:0}
+.rd-arrow:hover{background:var(--grey-10);border-color:var(--outline)}
+.rd-arrow:disabled{opacity:.25;cursor:default;pointer-events:none}
+.radar-who{flex:1 1 auto;min-width:0;display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px}
+.rd-name{display:inline-flex;align-items:center;gap:10px;min-width:0}
+.rd-name .nm-t{font-size:25px;font-weight:500;letter-spacing:-.015em;word-break:break-all}
+.rd-tag{font-size:12px;border-radius:var(--r-pill);padding:3px 12px;border:1px solid transparent;flex:0 0 auto}
+.rd-tag.open{background:rgba(15,169,88,.10);color:#0FA958;border-color:rgba(15,169,88,.28)}
+.rd-tag.closed{background:rgba(217,48,37,.07);color:var(--danger);border-color:rgba(217,48,37,.25)}
+.rd-overall{margin-left:auto;margin-right:6px;display:flex;flex-direction:column;gap:9px;flex:0 0 auto}
+.rd-o-row{display:flex;align-items:center;gap:10px}
+.rd-overall .lab{font-size:13px;color:var(--text-2)}
+.rd-rankpill{display:inline-flex;align-items:baseline;gap:4px;font-family:Georgia,'Times New Roman','Songti SC',SimSun,serif}
+.rd-rank{font-size:27px;font-weight:450;font-family:Georgia,'Times New Roman','Songti SC',SimSun,serif;letter-spacing:-.01em}
+.rd-of{font-size:13px;color:var(--text-3);font-family:Georgia,'Times New Roman',serif}
+.rd-score{font-family:Georgia,'Times New Roman',serif;font-size:20px;color:var(--text)}
+.rd-bar{height:5px;border-radius:var(--r-pill);background:var(--grey-20);overflow:hidden}
+.rd-bar i{display:block;height:100%;border-radius:var(--r-pill);background:#1E5FCF;transition:width .6s var(--ease-out-expo)}
+.radar-row{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:var(--sp-md);padding:0 52px}
+@media(max-width:900px){.radar-row{grid-template-columns:1fr;padding:0 44px}}
+.radar-fig{margin:0;min-width:0}
+.radar-cap{position:absolute;top:4px;left:8px;font-size:13.5px;font-weight:500;letter-spacing:.01em;z-index:2}
+.radar-cap.cap-raw{color:#0FA958}
+.radar-cap.cap-norm{color:#d93025}
+.rd-arrow.rd-side{position:absolute;top:50%;transform:translateY(-50%);width:42px;height:42px;
+  background:var(--grey-0);box-shadow:0 4px 14px rgba(18,19,23,.12);z-index:5}
+.rd-arrow.rd-side.rd-l{left:0}
+.rd-arrow.rd-side.rd-r{right:0}
+.radar-wrap{position:relative}
+.radar-wrap svg{display:block;width:100%;height:auto}
+.ax-lab{position:absolute;display:flex;gap:3px;align-items:center;font-size:12px;line-height:1.5;white-space:nowrap}
+.ax-lab.t{flex-direction:column;align-items:center;transform:translate(-50%,-100%)}
+.ax-lab.b{flex-direction:column;align-items:center;transform:translate(-50%,0)}
+.ax-lab.l{flex-direction:column;align-items:flex-end;transform:translate(-100%,-50%)}
+.ax-lab.r{flex-direction:column;align-items:flex-start;transform:translate(0,-50%)}
+.ax-lab .ax-row{display:inline-flex;gap:5px;align-items:baseline}
+.ax-v{font-style:normal;font-weight:450;color:#1E5FCF;font-family:var(--mono);font-size:12.5px}
+.ax-a{font-style:normal;color:#F98012;font-family:var(--mono);font-size:12.5px}
+.ax-n{color:var(--text);font-weight:450}
+.ax-rank{font-style:normal;font-family:var(--mono);font-size:11px;background:#E4EDFB;color:#1E5FCF;border-radius:var(--r-pill);padding:1px 7px}
+.ax-mid{display:inline-flex;gap:4px;align-items:center}
+.radar-legend{display:flex;align-items:center;justify-content:center;gap:22px;margin-top:10px;
+  font-size:12.5px;color:var(--text-2);flex-wrap:wrap}
+.radar-legend .lg-m{display:inline-flex;align-items:center;gap:6px}
+.lg-chip{display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:-2px}
+.lg-chip.orange{background:rgba(249,128,18,.22);border:1.5px solid rgba(249,128,18,.6)}
+.lg-chip.blue{background:rgba(30,95,207,.28);border:1.5px solid #1E5FCF}
 
 /* ---------- note / leaderboard / footer ---------- */
 .note{background:rgba(255,255,255,.66);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
@@ -318,15 +443,13 @@ body>*{position:relative;z-index:1}
 .lb-chart{display:flex;align-items:flex-end;justify-content:center;gap:8px;padding:0 8px;
   margin-top:auto}
 .lb-col{flex:0 1 150px;min-width:0;display:flex;flex-direction:column;align-items:center}
-.lb-barwrap{height:220px;display:flex;align-items:flex-end;justify-content:center;width:100%}
+.lb-barwrap{height:330px;display:flex;align-items:flex-end;justify-content:center;width:100%}
 .lb-bar{width:40%;max-width:44px;border-radius:4px 4px 0 0;display:flex;align-items:center;
-  justify-content:center;font-size:14px;font-weight:450;min-height:10px;
+  justify-content:center;font-size:14px;font-weight:450;min-height:10px;position:relative;overflow:visible;
   transition:height 1.05s var(--ease-out-expo)}
+.lb-outlabel{position:absolute;bottom:calc(100% + 3px);left:50%;transform:translateX(-50%);
+  color:var(--text);font-size:12px;font-weight:450;font-family:var(--mono);white-space:nowrap}
 .lb-chart:not(.lb-in) .lb-bar{height:0!important;min-height:0}
-.lb-bar.ours{border:4px solid transparent;border-bottom:none;
-  background:linear-gradient(var(--fill),var(--fill)) padding-box,
-    conic-gradient(from 210deg,#4285F4,#EA4335,#FBBC04,#34A853,#4285F4) border-box;
-  box-shadow:0 0 0 1px rgba(255,255,255,.65),0 10px 26px rgba(18,19,23,.14)}
 .lb-icon{margin-top:12px}
 .lb-name{margin:8px 0 0;font-size:12px;line-height:1.3;color:var(--text-2);min-height:2.6em;
   transform:rotate(-20deg);transform-origin:100% 0;text-align:right;
@@ -397,31 +520,38 @@ footer code{color:var(--text-2)}
   <p class="sub" id="hero-decl">数据集 Tstars-VTON 精选 20 条</p>
 </div></section>
 <main class="wrap">
-<article class="card reveal" id="s00265" data-sample="00265"><div class="card-hd"><span class="sid">#00265</span><span class="badge">2 slots</span><span class="badge">source + 1 refs</span></div><div class="card-bd"><p class="sec">原始输入 &middot; Inputs</p><div class="tiles"><div class="tile src" data-img="1"><span class="ph"><img src="assets/inputs/00265/model.webp" alt="model" title="1106×1481" loading="lazy"></span><span class="lb"><b>[Image 1]</b></span></div><div class="tile" data-img="2"><span class="ph"><img src="assets/inputs/00265/coat.webp" alt="coat" title="1280×1280" loading="lazy"></span><span class="lb"><b>[Image 2]</b></span></div></div><div class="cap"><p class="lab">Prompt</p><div class="txt">Have the model in [Image 1] put on the puffer coat from [Image 2], which should be worn open to reveal the cardigan underneath. Keep the model&#x27;s shoes, pose, and background unchanged.</div></div><p class="sec gap">模型输出 &middot; Outputs</p><div class="outs"></div><div class="rank-area"></div></div></article>
-<article class="card reveal" id="s00261" data-sample="00261"><div class="card-hd"><span class="sid">#00261</span><span class="badge">3 slots</span><span class="badge">source + 2 refs</span></div><div class="card-bd"><p class="sec">原始输入 &middot; Inputs</p><div class="tiles"><div class="tile src" data-img="1"><span class="ph"><img src="assets/inputs/00261/model.webp" alt="model" title="1106×1481" loading="lazy"></span><span class="lb"><b>[Image 1]</b></span></div><div class="tile" data-img="2"><span class="ph"><img src="assets/inputs/00261/dress.webp" alt="dress" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 2]</b></span></div><div class="tile" data-img="3"><span class="ph"><img src="assets/inputs/00261/bag.webp" alt="bag" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 3]</b></span></div></div><div class="cap"><p class="lab">Prompt</p><div class="txt">Replace the clothes of the model in [Image 1] with the dress from [Image 2] and have her carry the handbag from [Image 3]. Keep the model’s pose and background unchanged.</div></div><p class="sec gap">模型输出 &middot; Outputs</p><div class="outs"></div><div class="rank-area"></div></div></article>
-<article class="card reveal" id="s01765" data-sample="01765"><div class="card-hd"><span class="sid">#01765</span><span class="badge">3 slots</span><span class="badge">source + 2 refs</span></div><div class="card-bd"><p class="sec">原始输入 &middot; Inputs</p><div class="tiles"><div class="tile src" data-img="1"><span class="ph"><img src="assets/inputs/01765/model.webp" alt="model" title="1108×1478" loading="lazy"></span><span class="lb"><b>[Image 1]</b></span></div><div class="tile" data-img="2"><span class="ph"><img src="assets/inputs/01765/pant.webp" alt="pant" title="1108×1478" loading="lazy"></span><span class="lb"><b>[Image 2]</b></span></div><div class="tile" data-img="3"><span class="ph"><img src="assets/inputs/01765/bag.webp" alt="bag" title="900×1200" loading="lazy"></span><span class="lb"><b>[Image 3]</b></span></div></div><div class="cap"><p class="lab">Prompt</p><div class="txt">Keep the pose, background, and the upper parka of the model in [Image 1] unchanged. Replace the lower clothing with the baggy cargo pants from [Image 2] and have the model wear the chest bag from [Image 3] as a crossbody.</div></div><p class="sec gap">模型输出 &middot; Outputs</p><div class="outs"></div><div class="rank-area"></div></div></article>
-<article class="card reveal" id="s00015" data-sample="00015"><div class="card-hd"><span class="sid">#00015</span><span class="badge">4 slots</span><span class="badge">source + 3 refs</span></div><div class="card-bd"><p class="sec">原始输入 &middot; Inputs</p><div class="tiles"><div class="tile src" data-img="1"><span class="ph"><img src="assets/inputs/00015/model.webp" alt="model" title="1108×1478" loading="lazy"></span><span class="lb"><b>[Image 1]</b></span></div><div class="tile" data-img="2"><span class="ph"><img src="assets/inputs/00015/up.webp" alt="up" title="1200×1200" loading="lazy"></span><span class="lb"><b>[Image 2]</b></span></div><div class="tile" data-img="3"><span class="ph"><img src="assets/inputs/00015/shoes.webp" alt="shoes" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 3]</b></span></div><div class="tile" data-img="4"><span class="ph"><img src="assets/inputs/00015/bag.webp" alt="bag" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 4]</b></span></div></div><div class="cap"><p class="lab">Prompt</p><div class="txt">Replace the upper clothing of the model in [Image 1] with the t-shirt from [Image 2], keeping the original long skirt. Have the model put on the flat shoes from [Image 3] and carry the handbag from [Image 4], while keeping the pose and background unchanged.</div></div><p class="sec gap">模型输出 &middot; Outputs</p><div class="outs"></div><div class="rank-area"></div></div></article>
-<article class="card reveal" id="s00741" data-sample="00741"><div class="card-hd"><span class="sid">#00741</span><span class="badge">4 slots</span><span class="badge">source + 3 refs</span></div><div class="card-bd"><p class="sec">原始输入 &middot; Inputs</p><div class="tiles"><div class="tile src" data-img="1"><span class="ph"><img src="assets/inputs/00741/model.webp" alt="model" title="1108×1477" loading="lazy"></span><span class="lb"><b>[Image 1]</b></span></div><div class="tile" data-img="2"><span class="ph"><img src="assets/inputs/00741/coat.webp" alt="coat" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 2]</b></span></div><div class="tile" data-img="3"><span class="ph"><img src="assets/inputs/00741/dress.webp" alt="dress" title="1200×1200" loading="lazy"></span><span class="lb"><b>[Image 3]</b></span></div><div class="tile" data-img="4"><span class="ph"><img src="assets/inputs/00741/shoes.webp" alt="shoes" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 4]</b></span></div></div><div class="cap"><p class="lab">Prompt</p><div class="txt">Have the model in [Image 1] wear the off-the-shoulder dress from [Image 3] and the Mary Jane shoes from [Image 4]. Layer the denim jacket from [Image 2] over the dress and keep it open, revealing the inner outfit. Keep the model’s pose and background unchanged.</div></div><p class="sec gap">模型输出 &middot; Outputs</p><div class="outs"></div><div class="rank-area"></div></div></article>
-<article class="card reveal" id="s01381" data-sample="01381"><div class="card-hd"><span class="sid">#01381</span><span class="badge">4 slots</span><span class="badge">source + 3 refs</span></div><div class="card-bd"><p class="sec">原始输入 &middot; Inputs</p><div class="tiles"><div class="tile src" data-img="1"><span class="ph"><img src="assets/inputs/01381/model.webp" alt="model" title="1108×1478" loading="lazy"></span><span class="lb"><b>[Image 1]</b></span></div><div class="tile" data-img="2"><span class="ph"><img src="assets/inputs/01381/coat.webp" alt="coat" title="1108×1478" loading="lazy"></span><span class="lb"><b>[Image 2]</b></span></div><div class="tile" data-img="3"><span class="ph"><img src="assets/inputs/01381/dress.webp" alt="dress" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 3]</b></span></div><div class="tile" data-img="4"><span class="ph"><img src="assets/inputs/01381/bag.webp" alt="bag" title="530×550" loading="lazy"></span><span class="lb"><b>[Image 4]</b></span></div></div><div class="cap"><p class="lab">Prompt</p><div class="txt">Have the model in [Image 1] wear the sleeveless dress from [Image 3] and carry the handbag from [Image 4]. Put on the quilted coat from [Image 2], which should be worn open to reveal the inner dress. Keep the model’s pose and background unchanged.</div></div><p class="sec gap">模型输出 &middot; Outputs</p><div class="outs"></div><div class="rank-area"></div></div></article>
-<article class="card reveal" id="s01108" data-sample="01108"><div class="card-hd"><span class="sid">#01108</span><span class="badge">5 slots</span><span class="badge">source + 4 refs</span></div><div class="card-bd"><p class="sec">原始输入 &middot; Inputs</p><div class="tiles"><div class="tile src" data-img="1"><span class="ph"><img src="assets/inputs/01108/model.webp" alt="model" title="1108×1478" loading="lazy"></span><span class="lb"><b>[Image 1]</b></span></div><div class="tile" data-img="2"><span class="ph"><img src="assets/inputs/01108/up.webp" alt="up" title="1000×1000" loading="lazy"></span><span class="lb"><b>[Image 2]</b></span></div><div class="tile" data-img="3"><span class="ph"><img src="assets/inputs/01108/coat.webp" alt="coat" title="1280×1280" loading="lazy"></span><span class="lb"><b>[Image 3]</b></span></div><div class="tile" data-img="4"><span class="ph"><img src="assets/inputs/01108/shoes.webp" alt="shoes" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 4]</b></span></div><div class="tile" data-img="5"><span class="ph"><img src="assets/inputs/01108/hat.webp" alt="hat" title="1474×1110" loading="lazy"></span><span class="lb"><b>[Image 5]</b></span></div></div><div class="cap"><p class="lab">Prompt</p><div class="txt">Have the model in [Image 1] wear the long-sleeved T-shirt from [Image 2], the casual shoes from [Image 4], and the flat cap from [Image 5]. The vest from [Image 3] should be worn over the T-shirt and kept open. Keep the model&#x27;s lower clothing, pose, and background unchanged.</div></div><p class="sec gap">模型输出 &middot; Outputs</p><div class="outs"></div><div class="rank-area"></div></div></article>
-<article class="card reveal" id="s01263" data-sample="01263"><div class="card-hd"><span class="sid">#01263</span><span class="badge">5 slots</span><span class="badge">source + 4 refs</span></div><div class="card-bd"><p class="sec">原始输入 &middot; Inputs</p><div class="tiles"><div class="tile src" data-img="1"><span class="ph"><img src="assets/inputs/01263/model.webp" alt="model" title="1108×1478" loading="lazy"></span><span class="lb"><b>[Image 1]</b></span></div><div class="tile" data-img="2"><span class="ph"><img src="assets/inputs/01263/coat.webp" alt="coat" title="1440×1080" loading="lazy"></span><span class="lb"><b>[Image 2]</b></span></div><div class="tile" data-img="3"><span class="ph"><img src="assets/inputs/01263/dress.webp" alt="dress" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 3]</b></span></div><div class="tile" data-img="4"><span class="ph"><img src="assets/inputs/01263/shoes.webp" alt="shoes" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 4]</b></span></div><div class="tile" data-img="5"><span class="ph"><img src="assets/inputs/01263/hat.webp" alt="hat" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 5]</b></span></div></div><div class="cap"><p class="lab">Prompt</p><div class="txt">Replace the clothes of the model in [Image 1] with the dress in [Image 3], put on the sandals in [Image 4], and wear the sun hat in [Image 5]. The coat in [Image 2] should be worn over the dress and kept open. Keep the model&#x27;s pose and background unchanged.</div></div><p class="sec gap">模型输出 &middot; Outputs</p><div class="outs"></div><div class="rank-area"></div></div></article>
-<article class="card reveal" id="s01432" data-sample="01432"><div class="card-hd"><span class="sid">#01432</span><span class="badge">5 slots</span><span class="badge">source + 4 refs</span></div><div class="card-bd"><p class="sec">原始输入 &middot; Inputs</p><div class="tiles"><div class="tile src" data-img="1"><span class="ph"><img src="assets/inputs/01432/model.webp" alt="model" title="1106×1481" loading="lazy"></span><span class="lb"><b>[Image 1]</b></span></div><div class="tile" data-img="2"><span class="ph"><img src="assets/inputs/01432/up.webp" alt="up" title="1108×1478" loading="lazy"></span><span class="lb"><b>[Image 2]</b></span></div><div class="tile" data-img="3"><span class="ph"><img src="assets/inputs/01432/coat.webp" alt="coat" title="750×750" loading="lazy"></span><span class="lb"><b>[Image 3]</b></span></div><div class="tile" data-img="4"><span class="ph"><img src="assets/inputs/01432/pant.webp" alt="pant" title="750×1000" loading="lazy"></span><span class="lb"><b>[Image 4]</b></span></div><div class="tile" data-img="5"><span class="ph"><img src="assets/inputs/01432/shoes.webp" alt="shoes" title="1280×1280" loading="lazy"></span><span class="lb"><b>[Image 5]</b></span></div></div><div class="cap"><p class="lab">Prompt</p><div class="txt">Replace the clothes of the model in [Image 1] with the long-sleeved top from [Image 2] and the wide-leg pants from [Image 4], and have her wear the platform sneakers from [Image 5]. The fuzzy coat from [Image 3] should be worn open to reveal the inner top. Keep the model’s pose and background unchanged.</div></div><p class="sec gap">模型输出 &middot; Outputs</p><div class="outs"></div><div class="rank-area"></div></div></article>
-<article class="card reveal" id="s01506" data-sample="01506"><div class="card-hd"><span class="sid">#01506</span><span class="badge">5 slots</span><span class="badge">source + 4 refs</span></div><div class="card-bd"><p class="sec">原始输入 &middot; Inputs</p><div class="tiles"><div class="tile src" data-img="1"><span class="ph"><img src="assets/inputs/01506/model.webp" alt="model" title="1108×1477" loading="lazy"></span><span class="lb"><b>[Image 1]</b></span></div><div class="tile" data-img="2"><span class="ph"><img src="assets/inputs/01506/up.webp" alt="up" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 2]</b></span></div><div class="tile" data-img="3"><span class="ph"><img src="assets/inputs/01506/coat.webp" alt="coat" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 3]</b></span></div><div class="tile" data-img="4"><span class="ph"><img src="assets/inputs/01506/pant.webp" alt="pant" title="1108×1478" loading="lazy"></span><span class="lb"><b>[Image 4]</b></span></div><div class="tile" data-img="5"><span class="ph"><img src="assets/inputs/01506/bag.webp" alt="bag" title="1133×1445" loading="lazy"></span><span class="lb"><b>[Image 5]</b></span></div></div><div class="cap"><p class="lab">Prompt</p><div class="txt">Replace the clothes of the model in [Image 1] with the turtleneck sweater from [Image 2] and the cargo pants from [Image 4]. Let the model carry the duffel bag from [Image 5] and wear the quilted jacket from [Image 3] open to reveal the inner sweater. Keep the model’s pose and background unchanged.</div></div><p class="sec gap">模型输出 &middot; Outputs</p><div class="outs"></div><div class="rank-area"></div></div></article>
-<article class="card reveal" id="s00075" data-sample="00075"><div class="card-hd"><span class="sid">#00075</span><span class="badge">6 slots</span><span class="badge">source + 5 refs</span></div><div class="card-bd"><p class="sec">原始输入 &middot; Inputs</p><div class="tiles"><div class="tile src" data-img="1"><span class="ph"><img src="assets/inputs/00075/model.webp" alt="model" title="1106×1481" loading="lazy"></span><span class="lb"><b>[Image 1]</b></span></div><div class="tile" data-img="2"><span class="ph"><img src="assets/inputs/00075/coat.webp" alt="coat" title="1168×1401" loading="lazy"></span><span class="lb"><b>[Image 2]</b></span></div><div class="tile" data-img="3"><span class="ph"><img src="assets/inputs/00075/dress.webp" alt="dress" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 3]</b></span></div><div class="tile" data-img="4"><span class="ph"><img src="assets/inputs/00075/shoes.webp" alt="shoes" title="790×870" loading="lazy"></span><span class="lb"><b>[Image 4]</b></span></div><div class="tile" data-img="5"><span class="ph"><img src="assets/inputs/00075/bag.webp" alt="bag" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 5]</b></span></div><div class="tile" data-img="6"><span class="ph"><img src="assets/inputs/00075/hat.webp" alt="hat" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 6]</b></span></div></div><div class="cap"><p class="lab">Prompt</p><div class="txt">Replace the clothing of the model in [Image 1] with the dress from [Image 3], and have her wear the short boots from [Image 4], the shoulder bag from [Image 5], and the beanie from [Image 6]. The cropped jacket from [Image 2] should be worn open over the dress. Keep the model’s pose and background unchanged.</div></div><p class="sec gap">模型输出 &middot; Outputs</p><div class="outs"></div><div class="rank-area"></div></div></article>
-<article class="card reveal" id="s00159" data-sample="00159"><div class="card-hd"><span class="sid">#00159</span><span class="badge">6 slots</span><span class="badge">source + 5 refs</span></div><div class="card-bd"><p class="sec">原始输入 &middot; Inputs</p><div class="tiles"><div class="tile src" data-img="1"><span class="ph"><img src="assets/inputs/00159/model.webp" alt="model" title="1108×1477" loading="lazy"></span><span class="lb"><b>[Image 1]</b></span></div><div class="tile" data-img="2"><span class="ph"><img src="assets/inputs/00159/up.webp" alt="up" title="1280×1280" loading="lazy"></span><span class="lb"><b>[Image 2]</b></span></div><div class="tile" data-img="3"><span class="ph"><img src="assets/inputs/00159/coat.webp" alt="coat" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 3]</b></span></div><div class="tile" data-img="4"><span class="ph"><img src="assets/inputs/00159/skirt.webp" alt="skirt" title="750×750" loading="lazy"></span><span class="lb"><b>[Image 4]</b></span></div><div class="tile" data-img="5"><span class="ph"><img src="assets/inputs/00159/shoes.webp" alt="shoes" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 5]</b></span></div><div class="tile" data-img="6"><span class="ph"><img src="assets/inputs/00159/bag.webp" alt="bag" title="1280×1280" loading="lazy"></span><span class="lb"><b>[Image 6]</b></span></div></div><div class="cap"><p class="lab">Prompt</p><div class="txt">Replace the clothing of the model in [Image 1] with the short-sleeved blouse from [Image 2] and the pleated skirt from [Image 4]. Have the model wear the clogs from [Image 5] and carry the handbag from [Image 6]. The wool coat from [Image 3] should be worn open over the top to reveal the inner blouse, while keeping the model&#x27;s pose and background unchanged.</div></div><p class="sec gap">模型输出 &middot; Outputs</p><div class="outs"></div><div class="rank-area"></div></div></article>
-<article class="card reveal" id="s00871" data-sample="00871"><div class="card-hd"><span class="sid">#00871</span><span class="badge">6 slots</span><span class="badge">source + 5 refs</span></div><div class="card-bd"><p class="sec">原始输入 &middot; Inputs</p><div class="tiles"><div class="tile src" data-img="1"><span class="ph"><img src="assets/inputs/00871/model.webp" alt="model" title="1106×1481" loading="lazy"></span><span class="lb"><b>[Image 1]</b></span></div><div class="tile" data-img="2"><span class="ph"><img src="assets/inputs/00871/up.webp" alt="up" title="1280×1280" loading="lazy"></span><span class="lb"><b>[Image 2]</b></span></div><div class="tile" data-img="3"><span class="ph"><img src="assets/inputs/00871/coat.webp" alt="coat" title="1280×1280" loading="lazy"></span><span class="lb"><b>[Image 3]</b></span></div><div class="tile" data-img="4"><span class="ph"><img src="assets/inputs/00871/pant.webp" alt="pant" title="1280×1280" loading="lazy"></span><span class="lb"><b>[Image 4]</b></span></div><div class="tile" data-img="5"><span class="ph"><img src="assets/inputs/00871/shoes.webp" alt="shoes" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 5]</b></span></div><div class="tile" data-img="6"><span class="ph"><img src="assets/inputs/00871/hat.webp" alt="hat" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 6]</b></span></div></div><div class="cap"><p class="lab">Prompt</p><div class="txt">Replace the upper clothing of the model in [Image 1] with the Chinese-style top from [Image 2] and the lower clothing with the athletic shorts from [Image 4]. Have the model wear the sneakers from [Image 5] and the baseball cap from [Image 6]. The hooded parka from [Image 3] should be worn open over the top. Keep the model&#x27;s pose and background unchanged.</div></div><p class="sec gap">模型输出 &middot; Outputs</p><div class="outs"></div><div class="rank-area"></div></div></article>
-<article class="card reveal" id="s01247" data-sample="01247"><div class="card-hd"><span class="sid">#01247</span><span class="badge">6 slots</span><span class="badge">source + 5 refs</span></div><div class="card-bd"><p class="sec">原始输入 &middot; Inputs</p><div class="tiles"><div class="tile src" data-img="1"><span class="ph"><img src="assets/inputs/01247/model.webp" alt="model" title="1108×1478" loading="lazy"></span><span class="lb"><b>[Image 1]</b></span></div><div class="tile" data-img="2"><span class="ph"><img src="assets/inputs/01247/up.webp" alt="up" title="1000×1000" loading="lazy"></span><span class="lb"><b>[Image 2]</b></span></div><div class="tile" data-img="3"><span class="ph"><img src="assets/inputs/01247/coat.webp" alt="coat" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 3]</b></span></div><div class="tile" data-img="4"><span class="ph"><img src="assets/inputs/01247/pant.webp" alt="pant" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 4]</b></span></div><div class="tile" data-img="5"><span class="ph"><img src="assets/inputs/01247/shoes.webp" alt="shoes" title="1280×1280" loading="lazy"></span><span class="lb"><b>[Image 5]</b></span></div><div class="tile" data-img="6"><span class="ph"><img src="assets/inputs/01247/bag.webp" alt="bag" title="750×629" loading="lazy"></span><span class="lb"><b>[Image 6]</b></span></div></div><div class="cap"><p class="lab">Prompt</p><div class="txt">Replace the clothes of the model in [Image 1] with the knit top from [Image 2] and the skirt from [Image 4]. Have the model put on the sneakers from [Image 5] and carry the handbag from [Image 6]. The puffer jacket from [Image 3] should be worn open over the top. Keep the model’s pose and background unchanged.</div></div><p class="sec gap">模型输出 &middot; Outputs</p><div class="outs"></div><div class="rank-area"></div></div></article>
-<article class="card reveal" id="s01581" data-sample="01581"><div class="card-hd"><span class="sid">#01581</span><span class="badge">6 slots</span><span class="badge">source + 5 refs</span></div><div class="card-bd"><p class="sec">原始输入 &middot; Inputs</p><div class="tiles"><div class="tile src" data-img="1"><span class="ph"><img src="assets/inputs/01581/model.webp" alt="model" title="1106×1481" loading="lazy"></span><span class="lb"><b>[Image 1]</b></span></div><div class="tile" data-img="2"><span class="ph"><img src="assets/inputs/01581/coat.webp" alt="coat" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 2]</b></span></div><div class="tile" data-img="3"><span class="ph"><img src="assets/inputs/01581/dress.webp" alt="dress" title="1280×1280" loading="lazy"></span><span class="lb"><b>[Image 3]</b></span></div><div class="tile" data-img="4"><span class="ph"><img src="assets/inputs/01581/shoes.webp" alt="shoes" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 4]</b></span></div><div class="tile" data-img="5"><span class="ph"><img src="assets/inputs/01581/bag.webp" alt="bag" title="1280×1280" loading="lazy"></span><span class="lb"><b>[Image 5]</b></span></div><div class="tile" data-img="6"><span class="ph"><img src="assets/inputs/01581/hat.webp" alt="hat" title="750×1000" loading="lazy"></span><span class="lb"><b>[Image 6]</b></span></div></div><div class="cap"><p class="lab">Prompt</p><div class="txt">Have the model in [Image 1] wear the dress in [Image 3], the high heels in [Image 4], the handbag in [Image 5], and the straw hat in [Image 6]. The down coat in [Image 2] should be worn open over the dress to reveal the inner layer. Keep the model&#x27;s pose and background unchanged.</div></div><p class="sec gap">模型输出 &middot; Outputs</p><div class="outs"></div><div class="rank-area"></div></div></article>
-<article class="card reveal" id="s00309" data-sample="00309"><div class="card-hd"><span class="sid">#00309</span><span class="badge">7 slots</span><span class="badge">source + 6 refs</span></div><div class="card-bd"><p class="sec">原始输入 &middot; Inputs</p><div class="tiles"><div class="tile src" data-img="1"><span class="ph"><img src="assets/inputs/00309/model.webp" alt="model" title="1106×1481" loading="lazy"></span><span class="lb"><b>[Image 1]</b></span></div><div class="tile" data-img="2"><span class="ph"><img src="assets/inputs/00309/up.webp" alt="up" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 2]</b></span></div><div class="tile" data-img="3"><span class="ph"><img src="assets/inputs/00309/coat.webp" alt="coat" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 3]</b></span></div><div class="tile" data-img="4"><span class="ph"><img src="assets/inputs/00309/pant.webp" alt="pant" title="750×1000" loading="lazy"></span><span class="lb"><b>[Image 4]</b></span></div><div class="tile" data-img="5"><span class="ph"><img src="assets/inputs/00309/shoes.webp" alt="shoes" title="1011×519" loading="lazy"></span><span class="lb"><b>[Image 5]</b></span></div><div class="tile" data-img="6"><span class="ph"><img src="assets/inputs/00309/bag.webp" alt="bag" title="563×757" loading="lazy"></span><span class="lb"><b>[Image 6]</b></span></div><div class="tile" data-img="7"><span class="ph"><img src="assets/inputs/00309/hat.webp" alt="hat" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 7]</b></span></div></div><div class="cap"><p class="lab">Prompt</p><div class="txt">Replace the clothing of the model in [Image 1] with the suit vest from [Image 2] and the jeans from [Image 4]. Let the model put on the sneakers from [Image 5], the waist bag from [Image 6], and the baseball cap from [Image 7]. The jacket from [Image 3] should be worn open over the vest to reveal the inner top. Keep the model’s pose and background unchanged.</div></div><p class="sec gap">模型输出 &middot; Outputs</p><div class="outs"></div><div class="rank-area"></div></div></article>
-<article class="card reveal" id="s00688" data-sample="00688"><div class="card-hd"><span class="sid">#00688</span><span class="badge">7 slots</span><span class="badge">source + 6 refs</span></div><div class="card-bd"><p class="sec">原始输入 &middot; Inputs</p><div class="tiles"><div class="tile src" data-img="1"><span class="ph"><img src="assets/inputs/00688/model.webp" alt="model" title="1106×1481" loading="lazy"></span><span class="lb"><b>[Image 1]</b></span></div><div class="tile" data-img="2"><span class="ph"><img src="assets/inputs/00688/up.webp" alt="up" title="1200×1200" loading="lazy"></span><span class="lb"><b>[Image 2]</b></span></div><div class="tile" data-img="3"><span class="ph"><img src="assets/inputs/00688/coat.webp" alt="coat" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 3]</b></span></div><div class="tile" data-img="4"><span class="ph"><img src="assets/inputs/00688/skirt.webp" alt="skirt" title="1108×1478" loading="lazy"></span><span class="lb"><b>[Image 4]</b></span></div><div class="tile" data-img="5"><span class="ph"><img src="assets/inputs/00688/shoes.webp" alt="shoes" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 5]</b></span></div><div class="tile" data-img="6"><span class="ph"><img src="assets/inputs/00688/bag.webp" alt="bag" title="750×750" loading="lazy"></span><span class="lb"><b>[Image 6]</b></span></div><div class="tile" data-img="7"><span class="ph"><img src="assets/inputs/00688/hat.webp" alt="hat" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 7]</b></span></div></div><div class="cap"><p class="lab">Prompt</p><div class="txt">Replace the clothes of the model in [Image 1] with the long-sleeved T-shirt from [Image 2] and the skirt from [Image 4]. Have the model put on the embroidered shoes from [Image 5], carry the crossbody bag from [Image 6], and wear the swim cap from [Image 7]. The blazer from [Image 3] should be worn open over the T-shirt to reveal the inner top. Keep the model’s pose and background unchanged.</div></div><p class="sec gap">模型输出 &middot; Outputs</p><div class="outs"></div><div class="rank-area"></div></div></article>
-<article class="card reveal" id="s00714" data-sample="00714"><div class="card-hd"><span class="sid">#00714</span><span class="badge">7 slots</span><span class="badge">source + 6 refs</span></div><div class="card-bd"><p class="sec">原始输入 &middot; Inputs</p><div class="tiles"><div class="tile src" data-img="1"><span class="ph"><img src="assets/inputs/00714/model.webp" alt="model" title="1106×1481" loading="lazy"></span><span class="lb"><b>[Image 1]</b></span></div><div class="tile" data-img="2"><span class="ph"><img src="assets/inputs/00714/up.webp" alt="up" title="1109×1477" loading="lazy"></span><span class="lb"><b>[Image 2]</b></span></div><div class="tile" data-img="3"><span class="ph"><img src="assets/inputs/00714/coat.webp" alt="coat" title="1280×1280" loading="lazy"></span><span class="lb"><b>[Image 3]</b></span></div><div class="tile" data-img="4"><span class="ph"><img src="assets/inputs/00714/pant.webp" alt="pant" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 4]</b></span></div><div class="tile" data-img="5"><span class="ph"><img src="assets/inputs/00714/shoes.webp" alt="shoes" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 5]</b></span></div><div class="tile" data-img="6"><span class="ph"><img src="assets/inputs/00714/bag.webp" alt="bag" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 6]</b></span></div><div class="tile" data-img="7"><span class="ph"><img src="assets/inputs/00714/hat.webp" alt="hat" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 7]</b></span></div></div><div class="cap"><p class="lab">Prompt</p><div class="txt">Have the model in [Image 1] wear the short-sleeve shirt from [Image 2] and the shorts from [Image 4], paired with the sandals in [Image 5], the waist bag in [Image 6], and the bandana in [Image 7]. The overcoat from [Image 3] should be worn open over the shirt. Keep the model&#x27;s pose and background unchanged.</div></div><p class="sec gap">模型输出 &middot; Outputs</p><div class="outs"></div><div class="rank-area"></div></div></article>
-<article class="card reveal" id="s01110" data-sample="01110"><div class="card-hd"><span class="sid">#01110</span><span class="badge">7 slots</span><span class="badge">source + 6 refs</span></div><div class="card-bd"><p class="sec">原始输入 &middot; Inputs</p><div class="tiles"><div class="tile src" data-img="1"><span class="ph"><img src="assets/inputs/01110/model.webp" alt="model" title="1108×1478" loading="lazy"></span><span class="lb"><b>[Image 1]</b></span></div><div class="tile" data-img="2"><span class="ph"><img src="assets/inputs/01110/up.webp" alt="up" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 2]</b></span></div><div class="tile" data-img="3"><span class="ph"><img src="assets/inputs/01110/coat.webp" alt="coat" title="1280×1280" loading="lazy"></span><span class="lb"><b>[Image 3]</b></span></div><div class="tile" data-img="4"><span class="ph"><img src="assets/inputs/01110/pant.webp" alt="pant" title="1108×1478" loading="lazy"></span><span class="lb"><b>[Image 4]</b></span></div><div class="tile" data-img="5"><span class="ph"><img src="assets/inputs/01110/shoes.webp" alt="shoes" title="644×858" loading="lazy"></span><span class="lb"><b>[Image 5]</b></span></div><div class="tile" data-img="6"><span class="ph"><img src="assets/inputs/01110/bag.webp" alt="bag" title="500×553" loading="lazy"></span><span class="lb"><b>[Image 6]</b></span></div><div class="tile" data-img="7"><span class="ph"><img src="assets/inputs/01110/hat.webp" alt="hat" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 7]</b></span></div></div><div class="cap"><p class="lab">Prompt</p><div class="txt">Replace the clothes of the model in [Image 1] with the T-shirt from [Image 2] and the shorts from [Image 4]. Have the model wear the sneakers from [Image 5], carry the handbag from [Image 6], and put on the newsboy cap from [Image 7]. The puffer jacket from [Image 3] should be worn over the T-shirt and kept open. Keep the model&#x27;s pose and background unchanged.</div></div><p class="sec gap">模型输出 &middot; Outputs</p><div class="outs"></div><div class="rank-area"></div></div></article>
-<article class="card reveal" id="s01427" data-sample="01427"><div class="card-hd"><span class="sid">#01427</span><span class="badge">7 slots</span><span class="badge">source + 6 refs</span></div><div class="card-bd"><p class="sec">原始输入 &middot; Inputs</p><div class="tiles"><div class="tile src" data-img="1"><span class="ph"><img src="assets/inputs/01427/model.webp" alt="model" title="1108×1478" loading="lazy"></span><span class="lb"><b>[Image 1]</b></span></div><div class="tile" data-img="2"><span class="ph"><img src="assets/inputs/01427/up.webp" alt="up" title="868×1157" loading="lazy"></span><span class="lb"><b>[Image 2]</b></span></div><div class="tile" data-img="3"><span class="ph"><img src="assets/inputs/01427/coat.webp" alt="coat" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 3]</b></span></div><div class="tile" data-img="4"><span class="ph"><img src="assets/inputs/01427/skirt.webp" alt="skirt" title="1280×1280" loading="lazy"></span><span class="lb"><b>[Image 4]</b></span></div><div class="tile" data-img="5"><span class="ph"><img src="assets/inputs/01427/shoes.webp" alt="shoes" title="1108×1478" loading="lazy"></span><span class="lb"><b>[Image 5]</b></span></div><div class="tile" data-img="6"><span class="ph"><img src="assets/inputs/01427/bag.webp" alt="bag" title="1179×1179" loading="lazy"></span><span class="lb"><b>[Image 6]</b></span></div><div class="tile" data-img="7"><span class="ph"><img src="assets/inputs/01427/hat.webp" alt="hat" title="900×1200" loading="lazy"></span><span class="lb"><b>[Image 7]</b></span></div></div><div class="cap"><p class="lab">Prompt</p><div class="txt">Replace the clothes of the model in [Image 1] with the knit top from [Image 2] and the pleated skirt from [Image 4]. Have the model wear the fuzzy shoes from [Image 5], carry the chain bag from [Image 6], and put on the beret from [Image 7]. The puffer jacket from [Image 3] should be worn open over the knit top. Keep the model’s pose and background unchanged.</div></div><p class="sec gap">模型输出 &middot; Outputs</p><div class="outs"></div><div class="rank-area"></div></div></article>
+<section class="sample-viewer reveal" id="sample-viewer">
+  <div class="viewer-bar"><span class="vb-title">样本对比 · Samples</span><span class="vb-right"><span class="vb-hint">按序号跳转</span><button type="button" class="vb-pick" id="btn-pick" aria-label="选择样本序号" title="按序号跳转到指定样本"></button></span></div>
+  <div class="viewer-stage" id="viewer-stage">
+  <div class="pg-rail pg-l"><button type="button" class="pg-arrow" id="pg-prev" aria-label="上一个样本" disabled>‹</button></div>
+<article class="card" id="s00265" data-sample="00265"><div class="card-hd"><span class="sid">#00265</span><span class="badge">2 slots</span><span class="badge">source + 1 refs</span></div><div class="card-bd"><p class="sec">原始输入 &middot; Inputs</p><div class="tiles"><div class="tile src" data-img="1"><span class="ph"><img src="assets/inputs/00265/model.webp" alt="model" title="1106×1481" loading="lazy"></span><span class="lb"><b>[Image 1]</b></span></div><div class="tile" data-img="2"><span class="ph"><img src="assets/inputs/00265/coat.webp" alt="coat" title="1280×1280" loading="lazy"></span><span class="lb"><b>[Image 2]</b></span></div></div><div class="cap"><p class="lab">Prompt</p><div class="txt">Have the model in [Image 1] put on the puffer coat from [Image 2], which should be worn open to reveal the cardigan underneath. Keep the model&#x27;s shoes, pose, and background unchanged.</div></div><p class="sec gap">模型输出 &middot; Outputs<span class="ph-hint">点击图片放大查看，大图内可用 ← → 依次切换模型</span></p><div class="outs"></div><div class="rank-area"></div></div></article>
+<article class="card" id="s00261" data-sample="00261"><div class="card-hd"><span class="sid">#00261</span><span class="badge">3 slots</span><span class="badge">source + 2 refs</span></div><div class="card-bd"><p class="sec">原始输入 &middot; Inputs</p><div class="tiles"><div class="tile src" data-img="1"><span class="ph"><img src="assets/inputs/00261/model.webp" alt="model" title="1106×1481" loading="lazy"></span><span class="lb"><b>[Image 1]</b></span></div><div class="tile" data-img="2"><span class="ph"><img src="assets/inputs/00261/dress.webp" alt="dress" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 2]</b></span></div><div class="tile" data-img="3"><span class="ph"><img src="assets/inputs/00261/bag.webp" alt="bag" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 3]</b></span></div></div><div class="cap"><p class="lab">Prompt</p><div class="txt">Replace the clothes of the model in [Image 1] with the dress from [Image 2] and have her carry the handbag from [Image 3]. Keep the model’s pose and background unchanged.</div></div><p class="sec gap">模型输出 &middot; Outputs<span class="ph-hint">点击图片放大查看，大图内可用 ← → 依次切换模型</span></p><div class="outs"></div><div class="rank-area"></div></div></article>
+<article class="card" id="s01765" data-sample="01765"><div class="card-hd"><span class="sid">#01765</span><span class="badge">3 slots</span><span class="badge">source + 2 refs</span></div><div class="card-bd"><p class="sec">原始输入 &middot; Inputs</p><div class="tiles"><div class="tile src" data-img="1"><span class="ph"><img src="assets/inputs/01765/model.webp" alt="model" title="1108×1478" loading="lazy"></span><span class="lb"><b>[Image 1]</b></span></div><div class="tile" data-img="2"><span class="ph"><img src="assets/inputs/01765/pant.webp" alt="pant" title="1108×1478" loading="lazy"></span><span class="lb"><b>[Image 2]</b></span></div><div class="tile" data-img="3"><span class="ph"><img src="assets/inputs/01765/bag.webp" alt="bag" title="900×1200" loading="lazy"></span><span class="lb"><b>[Image 3]</b></span></div></div><div class="cap"><p class="lab">Prompt</p><div class="txt">Keep the pose, background, and the upper parka of the model in [Image 1] unchanged. Replace the lower clothing with the baggy cargo pants from [Image 2] and have the model wear the chest bag from [Image 3] as a crossbody.</div></div><p class="sec gap">模型输出 &middot; Outputs<span class="ph-hint">点击图片放大查看，大图内可用 ← → 依次切换模型</span></p><div class="outs"></div><div class="rank-area"></div></div></article>
+<article class="card" id="s00015" data-sample="00015"><div class="card-hd"><span class="sid">#00015</span><span class="badge">4 slots</span><span class="badge">source + 3 refs</span></div><div class="card-bd"><p class="sec">原始输入 &middot; Inputs</p><div class="tiles"><div class="tile src" data-img="1"><span class="ph"><img src="assets/inputs/00015/model.webp" alt="model" title="1108×1478" loading="lazy"></span><span class="lb"><b>[Image 1]</b></span></div><div class="tile" data-img="2"><span class="ph"><img src="assets/inputs/00015/up.webp" alt="up" title="1200×1200" loading="lazy"></span><span class="lb"><b>[Image 2]</b></span></div><div class="tile" data-img="3"><span class="ph"><img src="assets/inputs/00015/shoes.webp" alt="shoes" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 3]</b></span></div><div class="tile" data-img="4"><span class="ph"><img src="assets/inputs/00015/bag.webp" alt="bag" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 4]</b></span></div></div><div class="cap"><p class="lab">Prompt</p><div class="txt">Replace the upper clothing of the model in [Image 1] with the t-shirt from [Image 2], keeping the original long skirt. Have the model put on the flat shoes from [Image 3] and carry the handbag from [Image 4], while keeping the pose and background unchanged.</div></div><p class="sec gap">模型输出 &middot; Outputs<span class="ph-hint">点击图片放大查看，大图内可用 ← → 依次切换模型</span></p><div class="outs"></div><div class="rank-area"></div></div></article>
+<article class="card" id="s00741" data-sample="00741"><div class="card-hd"><span class="sid">#00741</span><span class="badge">4 slots</span><span class="badge">source + 3 refs</span></div><div class="card-bd"><p class="sec">原始输入 &middot; Inputs</p><div class="tiles"><div class="tile src" data-img="1"><span class="ph"><img src="assets/inputs/00741/model.webp" alt="model" title="1108×1477" loading="lazy"></span><span class="lb"><b>[Image 1]</b></span></div><div class="tile" data-img="2"><span class="ph"><img src="assets/inputs/00741/coat.webp" alt="coat" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 2]</b></span></div><div class="tile" data-img="3"><span class="ph"><img src="assets/inputs/00741/dress.webp" alt="dress" title="1200×1200" loading="lazy"></span><span class="lb"><b>[Image 3]</b></span></div><div class="tile" data-img="4"><span class="ph"><img src="assets/inputs/00741/shoes.webp" alt="shoes" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 4]</b></span></div></div><div class="cap"><p class="lab">Prompt</p><div class="txt">Have the model in [Image 1] wear the off-the-shoulder dress from [Image 3] and the Mary Jane shoes from [Image 4]. Layer the denim jacket from [Image 2] over the dress and keep it open, revealing the inner outfit. Keep the model’s pose and background unchanged.</div></div><p class="sec gap">模型输出 &middot; Outputs<span class="ph-hint">点击图片放大查看，大图内可用 ← → 依次切换模型</span></p><div class="outs"></div><div class="rank-area"></div></div></article>
+<article class="card" id="s01381" data-sample="01381"><div class="card-hd"><span class="sid">#01381</span><span class="badge">4 slots</span><span class="badge">source + 3 refs</span></div><div class="card-bd"><p class="sec">原始输入 &middot; Inputs</p><div class="tiles"><div class="tile src" data-img="1"><span class="ph"><img src="assets/inputs/01381/model.webp" alt="model" title="1108×1478" loading="lazy"></span><span class="lb"><b>[Image 1]</b></span></div><div class="tile" data-img="2"><span class="ph"><img src="assets/inputs/01381/coat.webp" alt="coat" title="1108×1478" loading="lazy"></span><span class="lb"><b>[Image 2]</b></span></div><div class="tile" data-img="3"><span class="ph"><img src="assets/inputs/01381/dress.webp" alt="dress" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 3]</b></span></div><div class="tile" data-img="4"><span class="ph"><img src="assets/inputs/01381/bag.webp" alt="bag" title="530×550" loading="lazy"></span><span class="lb"><b>[Image 4]</b></span></div></div><div class="cap"><p class="lab">Prompt</p><div class="txt">Have the model in [Image 1] wear the sleeveless dress from [Image 3] and carry the handbag from [Image 4]. Put on the quilted coat from [Image 2], which should be worn open to reveal the inner dress. Keep the model’s pose and background unchanged.</div></div><p class="sec gap">模型输出 &middot; Outputs<span class="ph-hint">点击图片放大查看，大图内可用 ← → 依次切换模型</span></p><div class="outs"></div><div class="rank-area"></div></div></article>
+<article class="card" id="s01108" data-sample="01108"><div class="card-hd"><span class="sid">#01108</span><span class="badge">5 slots</span><span class="badge">source + 4 refs</span></div><div class="card-bd"><p class="sec">原始输入 &middot; Inputs</p><div class="tiles"><div class="tile src" data-img="1"><span class="ph"><img src="assets/inputs/01108/model.webp" alt="model" title="1108×1478" loading="lazy"></span><span class="lb"><b>[Image 1]</b></span></div><div class="tile" data-img="2"><span class="ph"><img src="assets/inputs/01108/up.webp" alt="up" title="1000×1000" loading="lazy"></span><span class="lb"><b>[Image 2]</b></span></div><div class="tile" data-img="3"><span class="ph"><img src="assets/inputs/01108/coat.webp" alt="coat" title="1280×1280" loading="lazy"></span><span class="lb"><b>[Image 3]</b></span></div><div class="tile" data-img="4"><span class="ph"><img src="assets/inputs/01108/shoes.webp" alt="shoes" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 4]</b></span></div><div class="tile" data-img="5"><span class="ph"><img src="assets/inputs/01108/hat.webp" alt="hat" title="1474×1110" loading="lazy"></span><span class="lb"><b>[Image 5]</b></span></div></div><div class="cap"><p class="lab">Prompt</p><div class="txt">Have the model in [Image 1] wear the long-sleeved T-shirt from [Image 2], the casual shoes from [Image 4], and the flat cap from [Image 5]. The vest from [Image 3] should be worn over the T-shirt and kept open. Keep the model&#x27;s lower clothing, pose, and background unchanged.</div></div><p class="sec gap">模型输出 &middot; Outputs<span class="ph-hint">点击图片放大查看，大图内可用 ← → 依次切换模型</span></p><div class="outs"></div><div class="rank-area"></div></div></article>
+<article class="card" id="s01263" data-sample="01263"><div class="card-hd"><span class="sid">#01263</span><span class="badge">5 slots</span><span class="badge">source + 4 refs</span></div><div class="card-bd"><p class="sec">原始输入 &middot; Inputs</p><div class="tiles"><div class="tile src" data-img="1"><span class="ph"><img src="assets/inputs/01263/model.webp" alt="model" title="1108×1478" loading="lazy"></span><span class="lb"><b>[Image 1]</b></span></div><div class="tile" data-img="2"><span class="ph"><img src="assets/inputs/01263/coat.webp" alt="coat" title="1440×1080" loading="lazy"></span><span class="lb"><b>[Image 2]</b></span></div><div class="tile" data-img="3"><span class="ph"><img src="assets/inputs/01263/dress.webp" alt="dress" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 3]</b></span></div><div class="tile" data-img="4"><span class="ph"><img src="assets/inputs/01263/shoes.webp" alt="shoes" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 4]</b></span></div><div class="tile" data-img="5"><span class="ph"><img src="assets/inputs/01263/hat.webp" alt="hat" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 5]</b></span></div></div><div class="cap"><p class="lab">Prompt</p><div class="txt">Replace the clothes of the model in [Image 1] with the dress in [Image 3], put on the sandals in [Image 4], and wear the sun hat in [Image 5]. The coat in [Image 2] should be worn over the dress and kept open. Keep the model&#x27;s pose and background unchanged.</div></div><p class="sec gap">模型输出 &middot; Outputs<span class="ph-hint">点击图片放大查看，大图内可用 ← → 依次切换模型</span></p><div class="outs"></div><div class="rank-area"></div></div></article>
+<article class="card" id="s01432" data-sample="01432"><div class="card-hd"><span class="sid">#01432</span><span class="badge">5 slots</span><span class="badge">source + 4 refs</span></div><div class="card-bd"><p class="sec">原始输入 &middot; Inputs</p><div class="tiles"><div class="tile src" data-img="1"><span class="ph"><img src="assets/inputs/01432/model.webp" alt="model" title="1106×1481" loading="lazy"></span><span class="lb"><b>[Image 1]</b></span></div><div class="tile" data-img="2"><span class="ph"><img src="assets/inputs/01432/up.webp" alt="up" title="1108×1478" loading="lazy"></span><span class="lb"><b>[Image 2]</b></span></div><div class="tile" data-img="3"><span class="ph"><img src="assets/inputs/01432/coat.webp" alt="coat" title="750×750" loading="lazy"></span><span class="lb"><b>[Image 3]</b></span></div><div class="tile" data-img="4"><span class="ph"><img src="assets/inputs/01432/pant.webp" alt="pant" title="750×1000" loading="lazy"></span><span class="lb"><b>[Image 4]</b></span></div><div class="tile" data-img="5"><span class="ph"><img src="assets/inputs/01432/shoes.webp" alt="shoes" title="1280×1280" loading="lazy"></span><span class="lb"><b>[Image 5]</b></span></div></div><div class="cap"><p class="lab">Prompt</p><div class="txt">Replace the clothes of the model in [Image 1] with the long-sleeved top from [Image 2] and the wide-leg pants from [Image 4], and have her wear the platform sneakers from [Image 5]. The fuzzy coat from [Image 3] should be worn open to reveal the inner top. Keep the model’s pose and background unchanged.</div></div><p class="sec gap">模型输出 &middot; Outputs<span class="ph-hint">点击图片放大查看，大图内可用 ← → 依次切换模型</span></p><div class="outs"></div><div class="rank-area"></div></div></article>
+<article class="card" id="s01506" data-sample="01506"><div class="card-hd"><span class="sid">#01506</span><span class="badge">5 slots</span><span class="badge">source + 4 refs</span></div><div class="card-bd"><p class="sec">原始输入 &middot; Inputs</p><div class="tiles"><div class="tile src" data-img="1"><span class="ph"><img src="assets/inputs/01506/model.webp" alt="model" title="1108×1477" loading="lazy"></span><span class="lb"><b>[Image 1]</b></span></div><div class="tile" data-img="2"><span class="ph"><img src="assets/inputs/01506/up.webp" alt="up" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 2]</b></span></div><div class="tile" data-img="3"><span class="ph"><img src="assets/inputs/01506/coat.webp" alt="coat" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 3]</b></span></div><div class="tile" data-img="4"><span class="ph"><img src="assets/inputs/01506/pant.webp" alt="pant" title="1108×1478" loading="lazy"></span><span class="lb"><b>[Image 4]</b></span></div><div class="tile" data-img="5"><span class="ph"><img src="assets/inputs/01506/bag.webp" alt="bag" title="1133×1445" loading="lazy"></span><span class="lb"><b>[Image 5]</b></span></div></div><div class="cap"><p class="lab">Prompt</p><div class="txt">Replace the clothes of the model in [Image 1] with the turtleneck sweater from [Image 2] and the cargo pants from [Image 4]. Let the model carry the duffel bag from [Image 5] and wear the quilted jacket from [Image 3] open to reveal the inner sweater. Keep the model’s pose and background unchanged.</div></div><p class="sec gap">模型输出 &middot; Outputs<span class="ph-hint">点击图片放大查看，大图内可用 ← → 依次切换模型</span></p><div class="outs"></div><div class="rank-area"></div></div></article>
+<article class="card" id="s00075" data-sample="00075"><div class="card-hd"><span class="sid">#00075</span><span class="badge">6 slots</span><span class="badge">source + 5 refs</span></div><div class="card-bd"><p class="sec">原始输入 &middot; Inputs</p><div class="tiles"><div class="tile src" data-img="1"><span class="ph"><img src="assets/inputs/00075/model.webp" alt="model" title="1106×1481" loading="lazy"></span><span class="lb"><b>[Image 1]</b></span></div><div class="tile" data-img="2"><span class="ph"><img src="assets/inputs/00075/coat.webp" alt="coat" title="1168×1401" loading="lazy"></span><span class="lb"><b>[Image 2]</b></span></div><div class="tile" data-img="3"><span class="ph"><img src="assets/inputs/00075/dress.webp" alt="dress" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 3]</b></span></div><div class="tile" data-img="4"><span class="ph"><img src="assets/inputs/00075/shoes.webp" alt="shoes" title="790×870" loading="lazy"></span><span class="lb"><b>[Image 4]</b></span></div><div class="tile" data-img="5"><span class="ph"><img src="assets/inputs/00075/bag.webp" alt="bag" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 5]</b></span></div><div class="tile" data-img="6"><span class="ph"><img src="assets/inputs/00075/hat.webp" alt="hat" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 6]</b></span></div></div><div class="cap"><p class="lab">Prompt</p><div class="txt">Replace the clothing of the model in [Image 1] with the dress from [Image 3], and have her wear the short boots from [Image 4], the shoulder bag from [Image 5], and the beanie from [Image 6]. The cropped jacket from [Image 2] should be worn open over the dress. Keep the model’s pose and background unchanged.</div></div><p class="sec gap">模型输出 &middot; Outputs<span class="ph-hint">点击图片放大查看，大图内可用 ← → 依次切换模型</span></p><div class="outs"></div><div class="rank-area"></div></div></article>
+<article class="card" id="s00159" data-sample="00159"><div class="card-hd"><span class="sid">#00159</span><span class="badge">6 slots</span><span class="badge">source + 5 refs</span></div><div class="card-bd"><p class="sec">原始输入 &middot; Inputs</p><div class="tiles"><div class="tile src" data-img="1"><span class="ph"><img src="assets/inputs/00159/model.webp" alt="model" title="1108×1477" loading="lazy"></span><span class="lb"><b>[Image 1]</b></span></div><div class="tile" data-img="2"><span class="ph"><img src="assets/inputs/00159/up.webp" alt="up" title="1280×1280" loading="lazy"></span><span class="lb"><b>[Image 2]</b></span></div><div class="tile" data-img="3"><span class="ph"><img src="assets/inputs/00159/coat.webp" alt="coat" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 3]</b></span></div><div class="tile" data-img="4"><span class="ph"><img src="assets/inputs/00159/skirt.webp" alt="skirt" title="750×750" loading="lazy"></span><span class="lb"><b>[Image 4]</b></span></div><div class="tile" data-img="5"><span class="ph"><img src="assets/inputs/00159/shoes.webp" alt="shoes" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 5]</b></span></div><div class="tile" data-img="6"><span class="ph"><img src="assets/inputs/00159/bag.webp" alt="bag" title="1280×1280" loading="lazy"></span><span class="lb"><b>[Image 6]</b></span></div></div><div class="cap"><p class="lab">Prompt</p><div class="txt">Replace the clothing of the model in [Image 1] with the short-sleeved blouse from [Image 2] and the pleated skirt from [Image 4]. Have the model wear the clogs from [Image 5] and carry the handbag from [Image 6]. The wool coat from [Image 3] should be worn open over the top to reveal the inner blouse, while keeping the model&#x27;s pose and background unchanged.</div></div><p class="sec gap">模型输出 &middot; Outputs<span class="ph-hint">点击图片放大查看，大图内可用 ← → 依次切换模型</span></p><div class="outs"></div><div class="rank-area"></div></div></article>
+<article class="card" id="s00871" data-sample="00871"><div class="card-hd"><span class="sid">#00871</span><span class="badge">6 slots</span><span class="badge">source + 5 refs</span></div><div class="card-bd"><p class="sec">原始输入 &middot; Inputs</p><div class="tiles"><div class="tile src" data-img="1"><span class="ph"><img src="assets/inputs/00871/model.webp" alt="model" title="1106×1481" loading="lazy"></span><span class="lb"><b>[Image 1]</b></span></div><div class="tile" data-img="2"><span class="ph"><img src="assets/inputs/00871/up.webp" alt="up" title="1280×1280" loading="lazy"></span><span class="lb"><b>[Image 2]</b></span></div><div class="tile" data-img="3"><span class="ph"><img src="assets/inputs/00871/coat.webp" alt="coat" title="1280×1280" loading="lazy"></span><span class="lb"><b>[Image 3]</b></span></div><div class="tile" data-img="4"><span class="ph"><img src="assets/inputs/00871/pant.webp" alt="pant" title="1280×1280" loading="lazy"></span><span class="lb"><b>[Image 4]</b></span></div><div class="tile" data-img="5"><span class="ph"><img src="assets/inputs/00871/shoes.webp" alt="shoes" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 5]</b></span></div><div class="tile" data-img="6"><span class="ph"><img src="assets/inputs/00871/hat.webp" alt="hat" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 6]</b></span></div></div><div class="cap"><p class="lab">Prompt</p><div class="txt">Replace the upper clothing of the model in [Image 1] with the Chinese-style top from [Image 2] and the lower clothing with the athletic shorts from [Image 4]. Have the model wear the sneakers from [Image 5] and the baseball cap from [Image 6]. The hooded parka from [Image 3] should be worn open over the top. Keep the model&#x27;s pose and background unchanged.</div></div><p class="sec gap">模型输出 &middot; Outputs<span class="ph-hint">点击图片放大查看，大图内可用 ← → 依次切换模型</span></p><div class="outs"></div><div class="rank-area"></div></div></article>
+<article class="card" id="s01247" data-sample="01247"><div class="card-hd"><span class="sid">#01247</span><span class="badge">6 slots</span><span class="badge">source + 5 refs</span></div><div class="card-bd"><p class="sec">原始输入 &middot; Inputs</p><div class="tiles"><div class="tile src" data-img="1"><span class="ph"><img src="assets/inputs/01247/model.webp" alt="model" title="1108×1478" loading="lazy"></span><span class="lb"><b>[Image 1]</b></span></div><div class="tile" data-img="2"><span class="ph"><img src="assets/inputs/01247/up.webp" alt="up" title="1000×1000" loading="lazy"></span><span class="lb"><b>[Image 2]</b></span></div><div class="tile" data-img="3"><span class="ph"><img src="assets/inputs/01247/coat.webp" alt="coat" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 3]</b></span></div><div class="tile" data-img="4"><span class="ph"><img src="assets/inputs/01247/pant.webp" alt="pant" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 4]</b></span></div><div class="tile" data-img="5"><span class="ph"><img src="assets/inputs/01247/shoes.webp" alt="shoes" title="1280×1280" loading="lazy"></span><span class="lb"><b>[Image 5]</b></span></div><div class="tile" data-img="6"><span class="ph"><img src="assets/inputs/01247/bag.webp" alt="bag" title="750×629" loading="lazy"></span><span class="lb"><b>[Image 6]</b></span></div></div><div class="cap"><p class="lab">Prompt</p><div class="txt">Replace the clothes of the model in [Image 1] with the knit top from [Image 2] and the skirt from [Image 4]. Have the model put on the sneakers from [Image 5] and carry the handbag from [Image 6]. The puffer jacket from [Image 3] should be worn open over the top. Keep the model’s pose and background unchanged.</div></div><p class="sec gap">模型输出 &middot; Outputs<span class="ph-hint">点击图片放大查看，大图内可用 ← → 依次切换模型</span></p><div class="outs"></div><div class="rank-area"></div></div></article>
+<article class="card" id="s01581" data-sample="01581"><div class="card-hd"><span class="sid">#01581</span><span class="badge">6 slots</span><span class="badge">source + 5 refs</span></div><div class="card-bd"><p class="sec">原始输入 &middot; Inputs</p><div class="tiles"><div class="tile src" data-img="1"><span class="ph"><img src="assets/inputs/01581/model.webp" alt="model" title="1106×1481" loading="lazy"></span><span class="lb"><b>[Image 1]</b></span></div><div class="tile" data-img="2"><span class="ph"><img src="assets/inputs/01581/coat.webp" alt="coat" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 2]</b></span></div><div class="tile" data-img="3"><span class="ph"><img src="assets/inputs/01581/dress.webp" alt="dress" title="1280×1280" loading="lazy"></span><span class="lb"><b>[Image 3]</b></span></div><div class="tile" data-img="4"><span class="ph"><img src="assets/inputs/01581/shoes.webp" alt="shoes" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 4]</b></span></div><div class="tile" data-img="5"><span class="ph"><img src="assets/inputs/01581/bag.webp" alt="bag" title="1280×1280" loading="lazy"></span><span class="lb"><b>[Image 5]</b></span></div><div class="tile" data-img="6"><span class="ph"><img src="assets/inputs/01581/hat.webp" alt="hat" title="750×1000" loading="lazy"></span><span class="lb"><b>[Image 6]</b></span></div></div><div class="cap"><p class="lab">Prompt</p><div class="txt">Have the model in [Image 1] wear the dress in [Image 3], the high heels in [Image 4], the handbag in [Image 5], and the straw hat in [Image 6]. The down coat in [Image 2] should be worn open over the dress to reveal the inner layer. Keep the model&#x27;s pose and background unchanged.</div></div><p class="sec gap">模型输出 &middot; Outputs<span class="ph-hint">点击图片放大查看，大图内可用 ← → 依次切换模型</span></p><div class="outs"></div><div class="rank-area"></div></div></article>
+<article class="card" id="s00309" data-sample="00309"><div class="card-hd"><span class="sid">#00309</span><span class="badge">7 slots</span><span class="badge">source + 6 refs</span></div><div class="card-bd"><p class="sec">原始输入 &middot; Inputs</p><div class="tiles"><div class="tile src" data-img="1"><span class="ph"><img src="assets/inputs/00309/model.webp" alt="model" title="1106×1481" loading="lazy"></span><span class="lb"><b>[Image 1]</b></span></div><div class="tile" data-img="2"><span class="ph"><img src="assets/inputs/00309/up.webp" alt="up" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 2]</b></span></div><div class="tile" data-img="3"><span class="ph"><img src="assets/inputs/00309/coat.webp" alt="coat" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 3]</b></span></div><div class="tile" data-img="4"><span class="ph"><img src="assets/inputs/00309/pant.webp" alt="pant" title="750×1000" loading="lazy"></span><span class="lb"><b>[Image 4]</b></span></div><div class="tile" data-img="5"><span class="ph"><img src="assets/inputs/00309/shoes.webp" alt="shoes" title="1011×519" loading="lazy"></span><span class="lb"><b>[Image 5]</b></span></div><div class="tile" data-img="6"><span class="ph"><img src="assets/inputs/00309/bag.webp" alt="bag" title="563×757" loading="lazy"></span><span class="lb"><b>[Image 6]</b></span></div><div class="tile" data-img="7"><span class="ph"><img src="assets/inputs/00309/hat.webp" alt="hat" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 7]</b></span></div></div><div class="cap"><p class="lab">Prompt</p><div class="txt">Replace the clothing of the model in [Image 1] with the suit vest from [Image 2] and the jeans from [Image 4]. Let the model put on the sneakers from [Image 5], the waist bag from [Image 6], and the baseball cap from [Image 7]. The jacket from [Image 3] should be worn open over the vest to reveal the inner top. Keep the model’s pose and background unchanged.</div></div><p class="sec gap">模型输出 &middot; Outputs<span class="ph-hint">点击图片放大查看，大图内可用 ← → 依次切换模型</span></p><div class="outs"></div><div class="rank-area"></div></div></article>
+<article class="card" id="s00688" data-sample="00688"><div class="card-hd"><span class="sid">#00688</span><span class="badge">7 slots</span><span class="badge">source + 6 refs</span></div><div class="card-bd"><p class="sec">原始输入 &middot; Inputs</p><div class="tiles"><div class="tile src" data-img="1"><span class="ph"><img src="assets/inputs/00688/model.webp" alt="model" title="1106×1481" loading="lazy"></span><span class="lb"><b>[Image 1]</b></span></div><div class="tile" data-img="2"><span class="ph"><img src="assets/inputs/00688/up.webp" alt="up" title="1200×1200" loading="lazy"></span><span class="lb"><b>[Image 2]</b></span></div><div class="tile" data-img="3"><span class="ph"><img src="assets/inputs/00688/coat.webp" alt="coat" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 3]</b></span></div><div class="tile" data-img="4"><span class="ph"><img src="assets/inputs/00688/skirt.webp" alt="skirt" title="1108×1478" loading="lazy"></span><span class="lb"><b>[Image 4]</b></span></div><div class="tile" data-img="5"><span class="ph"><img src="assets/inputs/00688/shoes.webp" alt="shoes" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 5]</b></span></div><div class="tile" data-img="6"><span class="ph"><img src="assets/inputs/00688/bag.webp" alt="bag" title="750×750" loading="lazy"></span><span class="lb"><b>[Image 6]</b></span></div><div class="tile" data-img="7"><span class="ph"><img src="assets/inputs/00688/hat.webp" alt="hat" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 7]</b></span></div></div><div class="cap"><p class="lab">Prompt</p><div class="txt">Replace the clothes of the model in [Image 1] with the long-sleeved T-shirt from [Image 2] and the skirt from [Image 4]. Have the model put on the embroidered shoes from [Image 5], carry the crossbody bag from [Image 6], and wear the swim cap from [Image 7]. The blazer from [Image 3] should be worn open over the T-shirt to reveal the inner top. Keep the model’s pose and background unchanged.</div></div><p class="sec gap">模型输出 &middot; Outputs<span class="ph-hint">点击图片放大查看，大图内可用 ← → 依次切换模型</span></p><div class="outs"></div><div class="rank-area"></div></div></article>
+<article class="card" id="s00714" data-sample="00714"><div class="card-hd"><span class="sid">#00714</span><span class="badge">7 slots</span><span class="badge">source + 6 refs</span></div><div class="card-bd"><p class="sec">原始输入 &middot; Inputs</p><div class="tiles"><div class="tile src" data-img="1"><span class="ph"><img src="assets/inputs/00714/model.webp" alt="model" title="1106×1481" loading="lazy"></span><span class="lb"><b>[Image 1]</b></span></div><div class="tile" data-img="2"><span class="ph"><img src="assets/inputs/00714/up.webp" alt="up" title="1109×1477" loading="lazy"></span><span class="lb"><b>[Image 2]</b></span></div><div class="tile" data-img="3"><span class="ph"><img src="assets/inputs/00714/coat.webp" alt="coat" title="1280×1280" loading="lazy"></span><span class="lb"><b>[Image 3]</b></span></div><div class="tile" data-img="4"><span class="ph"><img src="assets/inputs/00714/pant.webp" alt="pant" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 4]</b></span></div><div class="tile" data-img="5"><span class="ph"><img src="assets/inputs/00714/shoes.webp" alt="shoes" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 5]</b></span></div><div class="tile" data-img="6"><span class="ph"><img src="assets/inputs/00714/bag.webp" alt="bag" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 6]</b></span></div><div class="tile" data-img="7"><span class="ph"><img src="assets/inputs/00714/hat.webp" alt="hat" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 7]</b></span></div></div><div class="cap"><p class="lab">Prompt</p><div class="txt">Have the model in [Image 1] wear the short-sleeve shirt from [Image 2] and the shorts from [Image 4], paired with the sandals in [Image 5], the waist bag in [Image 6], and the bandana in [Image 7]. The overcoat from [Image 3] should be worn open over the shirt. Keep the model&#x27;s pose and background unchanged.</div></div><p class="sec gap">模型输出 &middot; Outputs<span class="ph-hint">点击图片放大查看，大图内可用 ← → 依次切换模型</span></p><div class="outs"></div><div class="rank-area"></div></div></article>
+<article class="card" id="s01110" data-sample="01110"><div class="card-hd"><span class="sid">#01110</span><span class="badge">7 slots</span><span class="badge">source + 6 refs</span></div><div class="card-bd"><p class="sec">原始输入 &middot; Inputs</p><div class="tiles"><div class="tile src" data-img="1"><span class="ph"><img src="assets/inputs/01110/model.webp" alt="model" title="1108×1478" loading="lazy"></span><span class="lb"><b>[Image 1]</b></span></div><div class="tile" data-img="2"><span class="ph"><img src="assets/inputs/01110/up.webp" alt="up" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 2]</b></span></div><div class="tile" data-img="3"><span class="ph"><img src="assets/inputs/01110/coat.webp" alt="coat" title="1280×1280" loading="lazy"></span><span class="lb"><b>[Image 3]</b></span></div><div class="tile" data-img="4"><span class="ph"><img src="assets/inputs/01110/pant.webp" alt="pant" title="1108×1478" loading="lazy"></span><span class="lb"><b>[Image 4]</b></span></div><div class="tile" data-img="5"><span class="ph"><img src="assets/inputs/01110/shoes.webp" alt="shoes" title="644×858" loading="lazy"></span><span class="lb"><b>[Image 5]</b></span></div><div class="tile" data-img="6"><span class="ph"><img src="assets/inputs/01110/bag.webp" alt="bag" title="500×553" loading="lazy"></span><span class="lb"><b>[Image 6]</b></span></div><div class="tile" data-img="7"><span class="ph"><img src="assets/inputs/01110/hat.webp" alt="hat" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 7]</b></span></div></div><div class="cap"><p class="lab">Prompt</p><div class="txt">Replace the clothes of the model in [Image 1] with the T-shirt from [Image 2] and the shorts from [Image 4]. Have the model wear the sneakers from [Image 5], carry the handbag from [Image 6], and put on the newsboy cap from [Image 7]. The puffer jacket from [Image 3] should be worn over the T-shirt and kept open. Keep the model&#x27;s pose and background unchanged.</div></div><p class="sec gap">模型输出 &middot; Outputs<span class="ph-hint">点击图片放大查看，大图内可用 ← → 依次切换模型</span></p><div class="outs"></div><div class="rank-area"></div></div></article>
+<article class="card" id="s01427" data-sample="01427"><div class="card-hd"><span class="sid">#01427</span><span class="badge">7 slots</span><span class="badge">source + 6 refs</span></div><div class="card-bd"><p class="sec">原始输入 &middot; Inputs</p><div class="tiles"><div class="tile src" data-img="1"><span class="ph"><img src="assets/inputs/01427/model.webp" alt="model" title="1108×1478" loading="lazy"></span><span class="lb"><b>[Image 1]</b></span></div><div class="tile" data-img="2"><span class="ph"><img src="assets/inputs/01427/up.webp" alt="up" title="868×1157" loading="lazy"></span><span class="lb"><b>[Image 2]</b></span></div><div class="tile" data-img="3"><span class="ph"><img src="assets/inputs/01427/coat.webp" alt="coat" title="800×800" loading="lazy"></span><span class="lb"><b>[Image 3]</b></span></div><div class="tile" data-img="4"><span class="ph"><img src="assets/inputs/01427/skirt.webp" alt="skirt" title="1280×1280" loading="lazy"></span><span class="lb"><b>[Image 4]</b></span></div><div class="tile" data-img="5"><span class="ph"><img src="assets/inputs/01427/shoes.webp" alt="shoes" title="1108×1478" loading="lazy"></span><span class="lb"><b>[Image 5]</b></span></div><div class="tile" data-img="6"><span class="ph"><img src="assets/inputs/01427/bag.webp" alt="bag" title="1179×1179" loading="lazy"></span><span class="lb"><b>[Image 6]</b></span></div><div class="tile" data-img="7"><span class="ph"><img src="assets/inputs/01427/hat.webp" alt="hat" title="900×1200" loading="lazy"></span><span class="lb"><b>[Image 7]</b></span></div></div><div class="cap"><p class="lab">Prompt</p><div class="txt">Replace the clothes of the model in [Image 1] with the knit top from [Image 2] and the pleated skirt from [Image 4]. Have the model wear the fuzzy shoes from [Image 5], carry the chain bag from [Image 6], and put on the beret from [Image 7]. The puffer jacket from [Image 3] should be worn open over the knit top. Keep the model’s pose and background unchanged.</div></div><p class="sec gap">模型输出 &middot; Outputs<span class="ph-hint">点击图片放大查看，大图内可用 ← → 依次切换模型</span></p><div class="outs"></div><div class="rank-area"></div></div></article>
+<div class="pg-rail pg-r"><button type="button" class="pg-arrow" id="pg-next" aria-label="下一个样本" disabled>›</button></div>
+</div>
+</section>
 <section class="lb-section" id="lb-section">
   <div class="lb-head"><h2 class="lb-title">Leaderboard</h2></div>
   <div class="lb-grid">
-    <div class="lb-card"><p class="lb-tag"><span>QUALITY</span><span class="lb-tip"><span class="lb-tip-ico" aria-hidden="true">?</span><span class="lb-tip-box" role="tooltip">排序规则：<br>以模型列表中模型总数为满分，依据每个样本的人类偏好Rank排序名次递减打分，每个样本最高满分、最低1分，样本之间独立。最终得分为所有样本得分之和</span></span></p><div class="lb-chart" id="lb-quality"></div><div class="lb-pad"></div></div>
-    <div class="lb-card"><p class="lb-tag"><span>TIME-COST</span><span class="lb-tip"><span class="lb-tip-ico" aria-hidden="true">?</span><span class="lb-tip-box" role="tooltip">排序规则：<br>以所有样本生成净耗时的平均数作为综合耗时，耗时短者位次更高。耗时为单张 A40 实测（大模型启用 CPU offload），仅供参考</span></span></p><div class="lb-chart" id="lb-time"></div><div class="lb-pad"></div></div>
+    <div class="lb-card"><p class="lb-tag"><span>QUALITY</span><span class="lb-tip"><span class="lb-tip-ico" aria-hidden="true">?</span><span class="lb-tip-box" role="tooltip">每个样本按 指令遵循与主体对应 / 细节保真 / 背景保持 / 画质自然 四个维度独立排名；取各维度平均排名的倒序值归一化到 0-100，四维平均即最终得分。同分共享高排名并跳过低排名。展示时将 0-100 分映射到 20-80 区间（柱高与数值同尺度）</span></span></p><div class="lb-chart" id="lb-quality"></div><div class="lb-pad"></div></div>
+    <div class="lb-card radar-card"><p class="lb-tag"><span>RADAR</span><span class="lb-tip"><span class="lb-tip-ico" aria-hidden="true">?</span><span class="lb-tip-box" role="tooltip">六维 = 四项主观维度 + 尺寸 + 平均耗时，每个模型单独一页，左右翻页查看。左图标注真实值：主观维度为平均排名倒序的归一化分，尺寸/耗时按最优为满、最差为原点线性定位；右图全部换算为 0-100 的排名分以拉开差距。淡橙色六边形为全体模型平均值</span></span></p><div id="radar-body"></div><div class="lb-pad"></div></div>
     <div class="lb-card sc-card"><p class="lb-tag"><span>QUALITY MAP</span><span class="lb-tip"><span class="lb-tip-ico" aria-hidden="true">?</span><span class="lb-tip-box" role="tooltip" id="sc-tip"></span></span></p><div class="sc-legend" id="sc-legend"></div><div class="scatter-wrap" id="scatter"><div id="sc-grids"></div><div id="sc-pts"></div><div class="sc-empty" id="sc-empty">该维度暂无可用数据点</div></div><div class="seg" id="sc-seg"><span class="seg-thumb" id="seg-thumb"></span><button type="button" data-mode="time" class="active">Time-cost</button><button type="button" data-mode="size">Size</button></div></div>
   </div>
 </section>
@@ -430,6 +560,7 @@ footer code{color:var(--text-2)}
   <p class="foot-h">Try-on Arena</p>
 </div></footer>
 <div class="popover" id="popover"></div>
+<div class="lightbox" id="lightbox"><div class="lbx-card" id="lbx-card"></div><button type="button" class="lbx-arrow lbx-prev" id="lbx-prev" aria-label="上一个模型" disabled>‹</button><button type="button" class="lbx-arrow lbx-next" id="lbx-next" aria-label="下一个模型" disabled>›</button></div>
 <dialog class="dlg" id="dlg"><div class="dlg-inner" id="dlg-inner"></div></dialog>
 <div class="toast" id="toast"></div>
 <script src="gallery.data.js"></script>
@@ -453,13 +584,24 @@ function lum(hex) {
   return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
 }
 function contrastText(hex) { return lum(hex) > 0.45 ? '#121317' : '#ffffff'; }
-function displayName(m) { return m ? m.name + (m.ours ? '（Ours）' : '') : ''; }
+/* 渐变配色（Ours）没有单一底色可算对比度，统一白字加深投影 */
+function isGrad(c) { return typeof c === 'string' && c.indexOf('gradient') >= 0; }
+function textColorOf(c) { return isGrad(c) ? '#ffffff' : contrastText(c); }
+function capName(m) { var n = (m && m.name) || ''; return n.charAt(0).toUpperCase() + n.slice(1); }
+function displayName(m) { return m ? capName(m) + (m.ours ? '（Ours）' : '') : ''; }
 
-var COLORS = [['红', '#E94335'], ['蓝', '#346BF1'], ['紫', '#8B44D6'], ['绿', '#0FA958'], ['橙', '#F98012'], ['黑', '#121317'], ['灰', '#82858B']];
+/* Ours 的彩色渐变：窄处（柱体/名牌图标兜底）用 conic，扁长处（模型卡/输出卡顶条）用横向 linear */
+var GRAD_CONIC = 'conic-gradient(from 210deg,#4285F4,#EA4335,#FBBC04,#34A853,#4285F4)';
+var GRAD_LINEAR = 'linear-gradient(90deg,#4285F4,#EA4335,#FBBC04,#34A853)';
+var COLORS = [['红', '#E94335'], ['蓝', '#346BF1'], ['紫', '#8B44D6'], ['绿', '#0FA958'], ['橙', '#F98012'], ['黑', '#121317'], ['灰', '#82858B'], ['彩色', GRAD_CONIC]];
 var DEFAULT_COLOR = '#82858B';
 function paramNameOk(s) { return /^[\x21-\x7E]+$/.test(s); } /* 英文/数字/符号，不含空格与中文 */
 function paramValueOk(s) { return /^-?[0-9]+(\.[0-9]+)?$|^-?\.[0-9]+$/.test(s); } /* 数字，负号仅开头，可带小数点 */
 var STORE_KEY = 'tryonArenaStateV1';
+
+/* 四个主观评价维度：样本内小排名 / QUALITY 总榜 / 雷达图共用 */
+var DIM_KEYS = ['follow', 'detail', 'bg', 'quality'];
+var DIM_NAMES = { follow: '指令遵循与主体对应', detail: '细节保真', bg: '背景保持', quality: '画质自然' };
 
 /* 尺寸规格：state 里只存数字/小数串（不带 B），展示时补 B；空串 = Close Source */
 function sizeNorm(raw) {
@@ -501,6 +643,7 @@ function normalizeState(raw) {
   var models = (Array.isArray(raw.models) ? raw.models : []).map(function (m) {
     return {
       id: m.id, name: m.name || m.id, color: m.color || DEFAULT_COLOR,
+      publisher: m.publisher || '',
       icon: m.icon || null, ours: !!m.ours, size: sizeNorm(m.size),
       params: Array.isArray(m.params) ? m.params : []
     };
@@ -511,10 +654,17 @@ function normalizeState(raw) {
     var list = ((raw.outputs && raw.outputs[id]) || []).filter(function (o) { return o && mids[o.model]; });
     list.sort(function (a, b) { return modelIdxOf(models, a.model) - modelIdxOf(models, b.model); });
     outputs[id] = list;
-    var rk = ((raw.ranks && raw.ranks[id]) || []).filter(function (mid) {
-      return mids[mid] && list.some(function (o) { return o.model === mid; });
+    /* ranks 兼容两种形态：旧版单列表（四维各拷贝一份作初始）与新版 {follow,detail,bg,quality} */
+    var raw4 = (raw.ranks && raw.ranks[id]) || {};
+    if (Array.isArray(raw4)) raw4 = { follow: raw4, detail: raw4.slice(), bg: raw4.slice(), quality: raw4.slice() };
+    var rk = {};
+    DIM_KEYS.forEach(function (dk) {
+      var d = (Array.isArray(raw4[dk]) ? raw4[dk] : []).filter(function (mid) {
+        return mids[mid] && list.some(function (o) { return o.model === mid; });
+      });
+      list.forEach(function (o) { if (d.indexOf(o.model) < 0) d.push(o.model); });
+      rk[dk] = d;
     });
-    list.forEach(function (o) { if (rk.indexOf(o.model) < 0) rk.push(o.model); });
     ranks[id] = rk;
   });
   var meta = (raw.meta && raw.meta.ds) ? { ds: String(raw.meta.ds), n: String(raw.meta.n == null ? '' : raw.meta.n) }
@@ -548,20 +698,30 @@ function iconHtml(m, size) {
 function renderMeta() {
   var grid = $('#metagrid');
   $$('.model-card,.add-card', grid).forEach(function (el) { el.remove(); });
-  staged.models.forEach(function (m) {
-    var ct = contrastText(m.color);
+  /* 卡片纵向排列：按发布单位首字母排序，同首字母按添加先后 */
+  var order = staged.models.map(function (m, i) { return { m: m, i: i }; }).sort(function (a, b) {
+    var pa = (a.m.publisher || '?').charAt(0).toLowerCase(), pb = (b.m.publisher || '?').charAt(0).toLowerCase();
+    return pa < pb ? -1 : pa > pb ? 1 : a.i - b.i;
+  });
+  order.forEach(function (o) {
+    var m = o.m;
+    var ct = textColorOf(m.color);
     var el = document.createElement('div');
     el.className = 'meta model-card';
     el.setAttribute('data-mid', m.id);
-    el.style.background = m.color;
+    el.style.background = isGrad(m.color) ? GRAD_LINEAR : m.color;
     el.style.color = ct;
+    if (isGrad(m.color)) el.style.textShadow = '0 1px 2px rgba(0,0,0,.35)';
     var ps = (Array.isArray(m.params) ? m.params : []).filter(function (p) {
       return paramNameOk(p.name || '') && paramValueOk(p.value || '');
     });
-    var sub = ps.map(function (p) { return p.name + ' ' + p.value; }).join(' · ');
     el.innerHTML =
-      '<div class="m-head">' + iconHtml(m, 40) + '<span class="m-name">' + esc(displayName(m)) + '</span><span class="m-size">' + esc(m.size ? m.size + 'B' : 'Close Source') + '</span></div>' +
-      (sub ? '<p class="m-sub" style="color:' + ct + '">' + esc(sub) + '</p>' : '');
+      '<div class="m-row">' + iconHtml(m, 36) +
+      '<span class="m-pub">' + esc(m.publisher || '—') + '</span>' +
+      '<span class="m-name">' + esc(displayName(m)) + '</span>' +
+      '<span class="m-size">' + esc(m.size ? m.size + 'B' : 'Close Source') + '</span>' +
+      ps.map(function (p) { return '<span class="m-param">' + esc(p.name + ' ' + p.value) + '</span>'; }).join('') +
+      '</div>';
     grid.appendChild(el);
   });
   if (editing) {
@@ -584,7 +744,10 @@ function outCardHtml(o, editMode) {
   } else {
     msPart = o.ms ? '<span class="ms">' + esc(o.ms) + '</span>' : '';
   }
-  return '<div class="out" style="border-top:3px solid ' + col + '">' +
+  var topStyle = isGrad(col)
+    ? 'border-top:3px solid;border-image:' + GRAD_LINEAR + ' 1'
+    : 'border-top:3px solid ' + col;
+  return '<div class="out" style="' + topStyle + '">' +
     '<div class="out-hd">' + iconHtml(m || { color: col, icon: null }, 18) +
     '<span class="nm">' + esc(name) + '</span>' +
     msPart +
@@ -601,64 +764,309 @@ function renderSample(id) {
     (editing ? '<button type="button" class="out-add" data-add-out="' + id + '"><span class="plus">+</span><span>添加模型输出</span></button>' : '');
   var ra = $('.rank-area', card);
   if (outs.length) {
-    var chips = staged.ranks[id].map(function (mid, i) {
-      var m = getModel(mid);
-      return '<span class="rank-chip" data-mid="' + esc(mid) + '">' + iconHtml(m || { color: DEFAULT_COLOR, icon: null }, 16) +
-        '<span>' + esc(displayName(m) || mid) + '</span><span class="rk">Rank ' + (i + 1) + '</span></span>';
+    var cols = DIM_KEYS.map(function (dk) {
+      var chips = (staged.ranks[id][dk] || []).map(function (mid, i) {
+        var m = getModel(mid);
+        return '<span class="rank-chip" data-mid="' + esc(mid) + '">' + iconHtml(m || { color: DEFAULT_COLOR, icon: null }, 16) +
+          '<span class="nm">' + esc(displayName(m) || mid) + '</span><span class="rk">Rank ' + (i + 1) + '</span></span>';
+      }).join('');
+      return '<div class="rank-dim"><p class="rank-dim-name">' + esc(DIM_NAMES[dk]) + '</p>' +
+        '<div class="rank-bar" data-rank="' + id + '" data-dim="' + dk + '">' + chips + '</div></div>';
     }).join('');
-    ra.innerHTML = '<div class="rank-bar" data-rank="' + id + '"><span class="rank-cap">Rank</span>' + chips + '</div>';
-    var bar = $('.rank-bar', ra);
-    enableDrag(bar, '.rank-chip', function (order) {
-      staged.ranks[id] = order;
-      op('rank', id);
-      renderSample(id);
-      renderLeaderboard();
-    }, null);
+    ra.innerHTML = '<div class="rank-dims">' + cols + '</div>';
+    /* 每个维度一个独立拖拽容器：跨维串动在结构上不可能发生 */
+    $$('.rank-bar', ra).forEach(function (bar) {
+      var dim = bar.getAttribute('data-dim');
+      enableDrag(bar, '.rank-chip', function (order) {
+        staged.ranks[id][dim] = order;
+        op('rank', id + ' · ' + dim);
+        renderSample(id);
+        renderLeaderboard();
+      }, null);
+    });
   } else {
     ra.innerHTML = '';
   }
 }
 function renderAllSamples() { sampleIds.forEach(renderSample); }
-function renderLeaderboard() {
-  var section = $('#lb-section');
-  var qEl = $('#lb-quality'), tEl = $('#lb-time');
-  var N = staged.models.length;
-  if (!N) { qEl.innerHTML = ''; tEl.innerHTML = ''; section.style.display = 'none'; return; }
-  section.style.display = '';
-  /* QUALITY：Rank 计分 */
-  var score = qualScores();
-  var qRows = staged.models.map(function (m, i) { return { m: m, i: i, s: score[m.id] }; });
-  qRows.sort(function (a, b) { return b.s - a.s || a.i - b.i; });
-  var maxS = qRows[0].s || 1;
-  qEl.innerHTML = qRows.map(function (r, i) {
-    return chartColHtml(r.m, String(r.s), Math.max(10, Math.round(r.s / maxS * 220)), i);
-  }).join('');
-  /* TIME-COST：平均耗时（快者列前） */
-  var tRows = staged.models.map(function (m, i) { return { m: m, i: i, avg: avgTime(m.id) }; });
-  var known = tRows.filter(function (r) { return r.avg !== null; });
-  var unknown = tRows.filter(function (r) { return r.avg === null; });
-  known.sort(function (a, b) { return a.avg - b.avg || a.i - b.i; });
-  /* 柱高逻辑与 QUALITY 一致：按排名隐式计算（第 1 名满高，逐名递减），柱上标注平均耗时 */
-  var NK = known.length;
-  var cols = [];
-  known.forEach(function (r, i) {
-    cols.push(chartColHtml(r.m, (Math.round(r.avg * 10) / 10) + 's', Math.max(10, Math.round((NK - i) / NK * 220)), cols.length));
+/* ================= 评分引擎（四维主观 + 六维雷达） ================= */
+function rankListOf(sid, dim) { var r = staged.ranks[sid]; return (r && r[dim]) || []; }
+/* 各维「排名倒序值」矩阵：{dim:{mid:[每样本倒序值]}}，最优=样本内排名人数，未上榜=0 */
+function dimInvMatrix() {
+  var mx = {};
+  DIM_KEYS.forEach(function (dk) {
+    mx[dk] = {};
+    staged.models.forEach(function (m) { mx[dk][m.id] = []; });
   });
-  unknown.forEach(function (r) {
-    cols.push(chartColHtml(r.m, '—', 10, cols.length));
+  sampleIds.forEach(function (sid) {
+    DIM_KEYS.forEach(function (dk) {
+      var list = rankListOf(sid, dk), pos = {}, n = list.length;
+      list.forEach(function (mid, i) { pos[mid] = i + 1; });
+      staged.models.forEach(function (m) {
+        mx[dk][m.id].push(n - (pos[m.id] || n + 1) + 1);
+      });
+    });
   });
-  tEl.innerHTML = cols.join('');
+  return mx;
+}
+/* 维度分：平均排名倒序值 → min-max 归一化 0-100（内部不取整，展示时保留 1 位） */
+function dimNorm() {
+  var mx = dimInvMatrix(), res = {}, S = sampleIds.length || 1;
+  DIM_KEYS.forEach(function (dk) {
+    var inv = {};
+    staged.models.forEach(function (m) {
+      inv[m.id] = mx[dk][m.id].reduce(function (a, b) { return a + b; }, 0) / S;
+    });
+    var vals = staged.models.map(function (m) { return inv[m.id]; });
+    var mn = Math.min.apply(null, vals), mxv = Math.max.apply(null, vals);
+    res[dk] = {};
+    staged.models.forEach(function (m) {
+      res[dk][m.id] = mxv - mn < 1e-9 ? 0 : (inv[m.id] - mn) / (mxv - mn) * 100;
+    });
+  });
+  return res;
+}
+function qualityComposite(mid, dn) {
+  dn = dn || dimNorm();
+  return DIM_KEYS.reduce(function (a, dk) { return a + dn[dk][mid]; }, 0) / DIM_KEYS.length;
 }
 function qualScores() {
+  var dn = dimNorm(), res = {};
+  staged.models.forEach(function (m) { res[m.id] = qualityComposite(m.id, dn); });
+  return res;
+}
+/* 竞赛排名：同分共享高排名、跳过低排名（如 1,1,3）——仅用于名次展示 */
+function compRanks(entries, greaterBetter) {
+  var arr = entries.slice().sort(function (a, b) { return greaterBetter ? b.v - a.v : a.v - b.v; });
+  var res = {}, i = 0;
+  while (i < arr.length) {
+    var j = i;
+    while (j + 1 < arr.length && arr[j + 1].v === arr[i].v) j++;
+    for (var k = i; k <= j; k++) res[arr[k].id] = i + 1;
+    i = j + 1;
+  }
+  return res;
+}
+/* 平分时的算分：名次展示共高跳低，分值取并列块所占高低位对应分的均值，避免并列虚高 */
+function rankAndScore(entries, greaterBetter) {
+  var n = entries.length;
+  var arr = entries.slice().sort(function (a, b) { return greaterBetter ? b.v - a.v : a.v - b.v; });
+  var res = {}, i = 0;
+  while (i < arr.length) {
+    var j = i;
+    while (j + 1 < arr.length && arr[j + 1].v === arr[i].v) j++;
+    var sum = 0;
+    for (var k = i + 1; k <= j + 1; k++) sum += n > 1 ? (n - k) / (n - 1) * 100 : 100;
+    var score = sum / (j - i + 1);
+    for (var k2 = i; k2 <= j; k2++) res[arr[k2].id] = { rank: i + 1, score: score };
+    i = j + 1;
+  }
+  return res;
+}
+function renderLeaderboard() {
+  var section = $('#lb-section'), qEl = $('#lb-quality');
   var N = staged.models.length;
-  var score = {};
-  staged.models.forEach(function (m) { score[m.id] = 0; });
-  sampleIds.forEach(function (id) {
-    var ranked = staged.ranks[id] || [];
-    ranked.forEach(function (mid, i) { if (score[mid] !== undefined) score[mid] += N - i; });
-    staged.models.forEach(function (m) { if (ranked.indexOf(m.id) < 0) score[m.id] += 1; });
+  if (!N) { qEl.innerHTML = ''; section.style.display = 'none'; return; }
+  section.style.display = '';
+  /* QUALITY：四维平均排名倒序值的归一化均值（0-100，展示 1 位小数） */
+  var dn = dimNorm();
+  var qRows = staged.models.map(function (m, i) { return { m: m, i: i, s: qualityComposite(m.id, dn) }; });
+  qRows.sort(function (a, b) { return b.s - a.s || a.i - b.i; });
+  qEl.innerHTML = qRows.map(function (r, i) {
+    var v = 20 + r.s * 0.6;   /* 取值映射到 20-80：柱上标值与柱高同尺度 */
+    return chartColHtml(r.m, v.toFixed(1), Math.round(v / 100 * 330), i);
+  }).join('');
+  renderRadar(dn);
+}
+/* ---- 六维雷达（原始值图 + 排名分图，每模型一页，左右翻页） ---- */
+var radarIdx = 0;
+function sizeDim() {
+  var entries = staged.models.map(function (m) { return { id: m.id, v: sizeB(m) }; });
+  var known = entries.filter(function (e) { return e.v != null; });
+  var min = Infinity, max = -Infinity;
+  known.forEach(function (e) { if (e.v < min) min = e.v; if (e.v > max) max = e.v; });
+  var res = {};
+  entries.forEach(function (e) {
+    res[e.id] = e.v == null
+      ? { pos: 0, label: '闭源' }
+      : { pos: max - min < 1e-9 ? 100 : (max - e.v) / (max - min) * 100, label: e.v + 'B' };
   });
-  return score;
+  /* 均值标注用真实平均尺寸；闭源模型无尺寸信息，一律视为最大参与聚合 */
+  var avgRaw = null;
+  if (known.length) {
+    var s = 0;
+    entries.forEach(function (e) { s += (e.v == null ? max : e.v); });
+    avgRaw = s / entries.length;
+  }
+  return { res: res, entries: entries, avgLabel: avgRaw == null ? '—' : (Math.round(avgRaw * 10) / 10) + 'B',
+    maxKnown: known.length ? max : null };
+}
+function timeDim() {
+  var entries = staged.models.map(function (m) { return { id: m.id, v: avgTime(m.id) }; });
+  var known = entries.filter(function (e) { return e.v != null; });
+  var min = Infinity, max = -Infinity;
+  known.forEach(function (e) { if (e.v < min) min = e.v; if (e.v > max) max = e.v; });
+  var res = {};
+  entries.forEach(function (e) {
+    res[e.id] = e.v == null
+      ? { pos: 0, label: '—' }
+      : { pos: max - min < 1e-9 ? 100 : (max - e.v) / (max - min) * 100, label: (Math.round(e.v * 10) / 10) + 's' };
+  });
+  /* 没有耗时记录的：显示值用其余模型的均值替代 */
+  if (known.length) {
+    var meanPos = known.reduce(function (a, e) { return a + res[e.id].pos; }, 0) / known.length;
+    entries.forEach(function (e) { if (e.v == null) res[e.id].pos = meanPos; });
+  }
+  var meanKnown = known.length ? known.reduce(function (a, e) { return a + e.v; }, 0) / known.length : null;
+  return { res: res, entries: entries,
+    avgLabel: meanKnown == null ? '—' : (Math.round(meanKnown * 10) / 10) + 's', meanKnown: meanKnown };
+}
+function radarStep(d) {
+  radarIdx = Math.max(0, Math.min(staged.models.length - 1, radarIdx + d));
+  renderLeaderboard();
+}
+function renderRadar(dn) {
+  var body = $('#radar-body');
+  if (!body) return;
+  var N = staged.models.length;
+  if (!N) { body.innerHTML = ''; return; }
+  var sd = sizeDim(), td = timeDim();
+  /* 各维名次与分：主观维按归一化分降序；尺寸按真实值升序（闭源视为最大，垫底并列）；
+     耗时按真实值升序（无记录视为其余均值参与排名，与其点位画法一致）；平分共高跳低、分取高低位均值 */
+  var rks = {}, rs = {};
+  function rankDim(entries, greaterBetter) {
+    var ra = rankAndScore(entries, greaterBetter);
+    var R = {}, S = {};
+    staged.models.forEach(function (x) { R[x.id] = ra[x.id].rank; S[x.id] = ra[x.id].score; });
+    return { R: R, S: S };
+  }
+  DIM_KEYS.forEach(function (dk) {
+    var q = rankDim(staged.models.map(function (x) { return { id: x.id, v: dn[dk][x.id] }; }), true);
+    rks[dk] = q.R; rs[dk] = q.S;
+  });
+  var sizeForRank = rankDim(sd.entries.map(function (e) {
+    return { id: e.id, v: e.v == null ? (sd.maxKnown != null ? sd.maxKnown : 0) : e.v };
+  }), false);
+  rks.size = sizeForRank.R; rs.size = sizeForRank.S;
+  var timeForRank = rankDim(td.entries.map(function (e) {
+    return { id: e.id, v: e.v == null ? (td.meanKnown != null ? td.meanKnown : 0) : e.v };
+  }), false);
+  rks.time = timeForRank.R; rs.time = timeForRank.S;
+  /* 六轴数据：四主观维 + 尺寸 + 平均耗时；avg 为均值六边形位置，avgL 为轴旁均值标值（与模型标值同单位） */
+  function buildAxes(kind) {
+    var axes = [];
+    function meanOf(fn) {
+      var s = 0;
+      staged.models.forEach(function (x) { s += fn(x); });
+      return s / N;
+    }
+    DIM_KEYS.forEach(function (dk) {
+      if (kind === 'raw') {
+        /* 原始值图半径映射到 20-80（落在第二圈与第五圈之间），标注仍为真实值 */
+        axes.push({ name: DIM_NAMES[dk], val: 20 + dn[dk][m.id] * 0.6, vLabel: dn[dk][m.id].toFixed(1),
+          avg: meanOf(function (x) { return 20 + dn[dk][x.id] * 0.6; }),
+          avgL: meanOf(function (x) { return dn[dk][x.id]; }).toFixed(1), rank: rks[dk][m.id] });
+      } else {
+        axes.push({ name: DIM_NAMES[dk], val: rs[dk][m.id], vLabel: rs[dk][m.id].toFixed(1) + '%',
+          avg: meanOf(function (x) { return rs[dk][x.id]; }),
+          avgL: meanOf(function (x) { return rs[dk][x.id]; }).toFixed(1) + '%', rank: rks[dk][m.id] });
+      }
+    });
+    if (kind === 'raw') {
+      axes.push({ name: '尺寸', val: 20 + sd.res[m.id].pos * 0.6, vLabel: sd.res[m.id].label,
+        avg: meanOf(function (x) { return 20 + sd.res[x.id].pos * 0.6; }), avgL: sd.avgLabel, rank: rks.size[m.id] });
+      axes.push({ name: '平均耗时', val: 20 + td.res[m.id].pos * 0.6, vLabel: td.res[m.id].label,
+        avg: meanOf(function (x) { return 20 + td.res[x.id].pos * 0.6; }), avgL: td.avgLabel, rank: rks.time[m.id] });
+    } else {
+      axes.push({ name: '尺寸', val: rs.size[m.id], vLabel: rs.size[m.id].toFixed(1) + '%',
+        avg: meanOf(function (x) { return rs.size[x.id]; }),
+        avgL: meanOf(function (x) { return rs.size[x.id]; }).toFixed(1) + '%', rank: rks.size[m.id] });
+      axes.push({ name: '平均耗时', val: rs.time[m.id], vLabel: rs.time[m.id].toFixed(1) + '%',
+        avg: meanOf(function (x) { return rs.time[x.id]; }),
+        avgL: meanOf(function (x) { return rs.time[x.id]; }).toFixed(1) + '%', rank: rks.time[m.id] });
+    }
+    return axes;
+  }
+  /* 综合排名：六维排名分均值 → 竞赛排名 */
+  var six = staged.models.map(function (x) {
+    var parts = DIM_KEYS.map(function (dk) { return rs[dk][x.id]; });
+    parts.push(rs.size[x.id], rs.time[x.id]);
+    return { id: x.id, v: parts.reduce(function (a, b) { return a + b; }, 0) / 6 };
+  });
+  var overall = {}, orank = compRanks(six, true);
+  six.forEach(function (e) { overall[e.id] = e.v; });
+  /* 翻页顺序：从最后一名到第一名，向右翻模型越来越强 */
+  var dispOrder = staged.models.slice().sort(function (a, b) { return orank[b.id] - orank[a.id]; });
+  radarIdx = Math.max(0, Math.min(N - 1, radarIdx));
+  var m = dispOrder[radarIdx];
+  var sc = overall[m.id];
+  var axesRaw = buildAxes('raw'), axesRank = buildAxes('rank');
+  var tag = m.size ? '<span class="rd-tag open">开源</span>' : '<span class="rd-tag closed">闭源</span>';
+  body.innerHTML =
+    '<div class="radar-nav">' +
+      '<div class="radar-who">' + iconHtml(m, 34) +
+        '<span class="rd-name"><span class="nm-t">' + esc(displayName(m)) + '</span>' + tag + '</span>' +
+        '<div class="rd-overall">' +
+          '<div class="rd-o-row"><span class="lab">综合排名</span>' +
+            '<span class="rd-rankpill"><b class="rd-rank">#' + orank[m.id] + '</b><span class="rd-of">/ ' + N + '</span></span>' +
+            '<span class="rd-score">' + sc.toFixed(1) + '</span></div>' +
+          '<div class="rd-bar"><i style="width:' + Math.max(0, Math.min(100, sc)) + '%"></i></div>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="radar-row">' +
+      '<button type="button" class="rd-arrow rd-side rd-l" id="rd-prev" aria-label="上一个模型"' + (radarIdx === 0 ? ' disabled' : '') + '>‹</button>' +
+      '<figure class="radar-fig"><div class="radar-wrap"><span class="radar-cap cap-raw">「原始值」</span>' + radarSvg(axesRaw) + '</div></figure>' +
+      '<figure class="radar-fig"><div class="radar-wrap"><span class="radar-cap cap-norm">「归一化分数」</span>' + radarSvg(axesRank) + '</div></figure>' +
+      '<button type="button" class="rd-arrow rd-side rd-r" id="rd-next" aria-label="下一个模型"' + (radarIdx === N - 1 ? ' disabled' : '') + '>›</button>' +
+    '</div>' +
+    '<div class="radar-legend"><span class="lg-m"><i class="lg-chip blue"></i><span>' + esc(displayName(m)) + '</span></span>' +
+      '<span class="lg-m"><i class="lg-chip orange"></i><span>全体模型平均值</span></span></div>';
+}
+function radarSvg(axes) {
+  var W = 660, H = 440, cx = 330, cy = 220, R = 140;
+  function pt(i, v) {
+    var vv = Math.max(0, Math.min(100, v));
+    var ang = -Math.PI / 2 + i * Math.PI / 3;
+    return [cx + Math.cos(ang) * R * vv / 100, cy + Math.sin(ang) * R * vv / 100];
+  }
+  /* 六层圈：原点为第一层，向外在 20/40/60/80/100 处画五道网格；
+     网格画在多边形上方，透过半透明填充可见 */
+  function ringPoly(rv, fill, stroke) {
+    var pts = [];
+    for (var i = 0; i < axes.length; i++) pts.push(pt(i, rv).join(','));
+    return '<polygon points="' + pts.join(' ') + '" fill="' + fill + '" stroke="' + stroke + '"/>';
+  }
+  var outer = ringPoly(100, '#f3f6fb', 'rgba(33,34,38,.10)');
+  var web = '';
+  [20, 40, 60, 80].forEach(function (rv) { web += ringPoly(rv, 'none', 'rgba(33,34,38,.13)'); });
+  var spokes = '';
+  for (var i = 0; i < axes.length; i++) {
+    var p = pt(i, 100);
+    spokes += '<line x1="' + cx + '" y1="' + cy + '" x2="' + p[0] + '" y2="' + p[1] + '" stroke="rgba(33,34,38,.13)"/>';
+  }
+  function poly(getV, fill, stroke, sw) {
+    var pts = [];
+    for (var i = 0; i < axes.length; i++) pts.push(pt(i, getV(i)).join(','));
+    return '<polygon points="' + pts.join(' ') + '" fill="' + fill + '" stroke="' + stroke + '" stroke-width="' + sw + '" stroke-linejoin="round"/>';
+  }
+  /* 轴标签为 HTML 覆盖层：顶轴徽章在上、底轴徽章在下，两侧三行堆叠（值/徽章+维名/均值） */
+  var labels = '';
+  for (var i = 0; i < axes.length; i++) {
+    var a = axes[i], p = pt(i, 100), cls, lx, ly, inner;
+    var row = '<span class="ax-row"><b class="ax-v">' + a.vLabel + '</b><span class="ax-n">' + esc(a.name) + '</span><em class="ax-a">' + a.avgL + '</em></span>';
+    var pill = '<i class="ax-rank">#' + a.rank + '</i>';
+    var mid = '<span class="ax-mid"><i class="ax-rank">#' + a.rank + '</i><span class="ax-n">' + esc(a.name) + '</span></span>';
+    if (i === 0) { cls = 't'; lx = p[0]; ly = p[1] - 14; inner = pill + row; }
+    else if (i === 3) { cls = 'b'; lx = p[0]; ly = p[1] + 14; inner = row + pill; }
+    else if (i === 1 || i === 2) { cls = 'r'; lx = p[0] + 16; ly = p[1]; inner = '<b class="ax-v">' + a.vLabel + '</b>' + mid + '<em class="ax-a">' + a.avgL + '</em>'; }
+    else { cls = 'l'; lx = p[0] - 16; ly = p[1]; inner = '<b class="ax-v">' + a.vLabel + '</b>' + mid + '<em class="ax-a">' + a.avgL + '</em>'; }
+    labels += '<span class="ax-lab ' + cls + '" style="left:' + (lx / W * 100).toFixed(2) + '%;top:' + (ly / H * 100).toFixed(2) + '%">' + inner + '</span>';
+  }
+  return '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-hidden="true">' + outer +
+    poly(function (i) { return axes[i].avg; }, 'rgba(249,128,18,.20)', 'rgba(249,128,18,.55)', 1.5) +
+    poly(function (i) { return axes[i].val; }, 'rgba(30,95,207,.28)', '#1E5FCF', 2) +
+    web + spokes + '</svg>' + labels;
 }
 function avgTime(mid) {
   var t = [];
@@ -675,14 +1083,13 @@ function sizeB(m) {
   return isNaN(v) ? null : v;
 }
 function chartColHtml(m, label, h, i) {
-  var ct = contrastText(m.color);
-  var style = 'height:' + h + 'px;transition-delay:' + (i * 80) + 'ms;color:' + ct + ';';
-  var cls = 'lb-bar' + (m.ours ? ' ours' : '');
-  if (m.ours) style += '--fill:' + m.color + ';';
-  else style += 'background:' + m.color + ';';
-  return '<div class="lb-col"><div class="lb-barwrap"><div class="' + cls + '" style="' + style + '">' + label + '</div></div>' +
+  var ct = textColorOf(m.color);
+  var style = 'height:' + h + 'px;transition-delay:' + (i * 80) + 'ms;color:' + ct + ';background:' + m.color + ';';
+  if (isGrad(m.color)) style += 'text-shadow:0 1px 2px rgba(0,0,0,.35);';
+  var inner = h < 26 ? '<span class="lb-outlabel">' + label + '</span>' : label;
+  return '<div class="lb-col"><div class="lb-barwrap"><div class="lb-bar" style="' + style + '">' + inner + '</div></div>' +
     '<span class="lb-icon">' + iconHtml(m, 30) + '</span>' +
-    '<div class="lb-name">' + esc(m.name) + (m.ours ? '<span class="lb-ours">Ours</span>' : '') + '</div></div>';
+    '<div class="lb-name">' + esc(capName(m)) + (m.ours ? '<span class="lb-ours">Ours</span>' : '') + '</div></div>';
 }
 function armCharts() {
   function check() {
@@ -747,13 +1154,15 @@ function renderScatter() {
   var pts = data.filter(function (d) { return scMode === 'time' ? d.t != null : d.s != null; });
   var vals = pts.map(function (d) { return scMode === 'time' ? d.t : d.s; });
   var maxX = Math.max.apply(null, vals.concat([1])) * 1.08;
-  var maxY = Math.max.apply(null, data.map(function (d) { return d.q; }).concat([1])) * 1.08;
   function ticks(max, n) { var a = []; for (var i = 0; i <= n; i++) a.push(max * i / n); return a; }
   function fmt(v) { return String(Math.round(v * 10) / 10); }
   var fmtX = scMode === 'time' ? function (v) { return fmt(v) + 's'; } : function (v) { return fmt(v) + 'B'; };
+  /* Quality 轴与 QUALITY 榜同步：0-100 分映射到 20-80 波段，刻度即映射后取值 */
+  function qPos(q) { return 20 + q * 0.6; }
   var html = '';
-  ticks(maxY, 5).forEach(function (v) {
-    html += '<div class="sc-grid h" style="bottom:' + (v / maxY * 100) + '%"></div><span class="sc-tick y" style="bottom:' + (v / maxY * 100) + '%">' + fmt(v) + '</span>';
+  [0, 20, 40, 60, 80, 100].forEach(function (q) {
+    var p = qPos(q);
+    html += '<div class="sc-grid h" style="bottom:' + p + '%"></div><span class="sc-tick y" style="bottom:' + p + '%">' + fmt(p) + '</span>';
   });
   ticks(maxX, 4).forEach(function (v) {
     html += '<div class="sc-grid v" style="left:' + (v / maxX * 100) + '%"></div><span class="sc-tick x" style="left:' + (v / maxX * 100) + '%">' + fmtX(v) + '</span>';
@@ -766,7 +1175,7 @@ function renderScatter() {
   var keep = {};
   pts.forEach(function (d) {
     var v = scMode === 'time' ? d.t : d.s;
-    var x = v / maxX * 100, y = d.q / maxY * 100;
+    var x = v / maxX * 100, y = qPos(d.q);
     var node = existing[d.m.id];
     if (node) {
       node.style.left = x + '%';
@@ -1150,6 +1559,7 @@ function openModelPop(mid, anchor) {
   openPop(
     '<p class="pop-title"><span class="pop-grip" aria-hidden="true">⠿</span>' + esc(m.name) + '</p>' +
     '<p class="pop-label">名称（改名后全站同步）</p><input class="pop-input" id="pop-name" value="' + esc(m.name) + '" maxlength="80" autocomplete="off">' +
+    '<p class="pop-label">发布单位</p><input class="pop-input" id="pop-pub" value="' + esc(m.publisher || '') + '" maxlength="40" autocomplete="off">' +
     '<p class="pop-label">颜色</p><div class="swatches">' + sw + '</div>' +
     '<p class="pop-label">尺寸（仅数字，自动补 B；留空为 Close Source）</p><input class="pop-input" id="pop-size" value="' + esc(m.size || '') + '" placeholder="如 7 / 20" inputmode="numeric" autocomplete="off">' +
     '<p class="pop-label">参数属性（左名右值，成对填写才显示在卡片上）</p>' +
@@ -1272,6 +1682,16 @@ function collectParams() {
 }
 pop.addEventListener('click', function (e) {
   var btn;
+  /* 样本序号两位数快选：十位/个位选定后需点确认才跳转，防误选 */
+  if ((btn = e.target.closest('[data-pg-t]'))) { openPicker(+btn.getAttribute('data-pg-t')); return; }
+  if ((btn = e.target.closest('[data-pg-o]'))) { openPicker(pickT, +btn.getAttribute('data-pg-o')); return; }
+  if ((btn = e.target.closest('#pg-go'))) {
+    var pg = 10 * pickT + (pickO == null ? 0 : pickO);
+    pickT = -1; pickO = null;
+    closePop();
+    if (pg >= 1 && pg <= sampleIds.length) goToPage(pg);
+    return;
+  }
   if (e.target.closest('#pop-ok')) {
     var mE0 = getModel(pop.__mid);
     var sizeOk = commitSize();
@@ -1283,6 +1703,8 @@ pop.addEventListener('click', function (e) {
     if (sizeOk && params && !nameErr) {
       if (mE0) {
         if (mE0.name !== newName) { op('rename', mE0.name + ' → ' + newName); mE0.name = newName; }
+        var newPub = $('#pop-pub') ? $('#pop-pub').value.trim() : mE0.publisher || '';
+        if (mE0.publisher !== newPub) { op('publisher', mE0.name + ' → ' + newPub); mE0.publisher = newPub; }
         mE0.params = params;
         op('params', mE0.name);
         renderMeta();
@@ -1357,7 +1779,9 @@ pop.addEventListener('click', function (e) {
       staged.models = staged.models.filter(function (x) { return x.id !== midDel; });
       sampleIds.forEach(function (id) {
         staged.outputs[id] = (staged.outputs[id] || []).filter(function (o) { return o.model !== midDel; });
-        staged.ranks[id] = (staged.ranks[id] || []).filter(function (x) { return x !== midDel; });
+        DIM_KEYS.forEach(function (dk) {
+          if (staged.ranks[id]) staged.ranks[id][dk] = (staged.ranks[id][dk] || []).filter(function (x) { return x !== midDel; });
+        });
       });
       op('delete-model', midDel);
       closeDlg();
@@ -1372,6 +1796,7 @@ pop.addEventListener('click', function (e) {
 function openDlgAddModel() {
   openDlg('<p class="dlg-title">新增模型</p>' +
     '<input type="text" id="dlg-model-name" placeholder="模型名称，如 gpt-image-1" maxlength="80">' +
+    '<input type="text" id="dlg-model-pub" placeholder="发布单位，如 Alibaba / Dark Forest Labs / RedNote / VCIP" maxlength="40" autocomplete="off">' +
     '<input type="text" id="dlg-model-size" placeholder="尺寸：仅数字，自动补 B（留空 = Close Source）" maxlength="9" inputmode="numeric" autocomplete="off" style="margin-bottom:14px">' +
     '<p class="dlg-label">参数属性（左名右值，成对填写才显示；可整条留空）</p>' +
     '<div class="pop-prow"><input type="text" id="dlg-p0n" class="pn" placeholder="参数名" autocomplete="off"><input type="text" id="dlg-p0v" placeholder="参数值" autocomplete="off"></div>' +
@@ -1415,7 +1840,7 @@ function openDlgAddModel() {
       if (!paramValueOk(v)) { pEls[i * 2 + 1].classList.add('bad'); toast('参数值仅支持数字（负号在开头，可带小数点）'); return; }
       params.push({ name: n, value: v });
     }
-    staged.models.push({ id: 'm' + Date.now().toString(36), name: name, color: DEFAULT_COLOR, icon: null, ours: $('#dlg-model-ours').checked, size: sizeNorm(sizeRaw), params: params });
+    staged.models.push({ id: 'm' + Date.now().toString(36), name: name, color: DEFAULT_COLOR, publisher: $('#dlg-model-pub').value.trim(), icon: null, ours: $('#dlg-model-ours').checked, size: sizeNorm(sizeRaw), params: params });
     op('add-model', name);
     closeDlg();
     renderMeta();
@@ -1447,14 +1872,18 @@ document.addEventListener('click', function (e) {
       /* 新增输出一律不带耗时：缺省即不参与平均耗时，需要时在卡头胶囊里补 */
       staged.outputs[sid2] = staged.outputs[sid2] || [];
       staged.outputs[sid2].push({ model: mid, src: dataUrl, ms: '' });
-      staged.ranks[sid2] = staged.ranks[sid2] || [];
-      if (staged.ranks[sid2].indexOf(mid) < 0) {
-        var at = staged.ranks[sid2].length;
-        for (var i = 0; i < staged.ranks[sid2].length; i++) {
-          if (modelIndex(staged.ranks[sid2][i]) > modelIndex(mid)) { at = i; break; }
+      staged.ranks[sid2] = staged.ranks[sid2] || {};
+      /* 新模型按模型列表顺序插进四个维度的排名（old 列表形态已由 normalizeState 统一为对象） */
+      DIM_KEYS.forEach(function (dk) {
+        var rl = staged.ranks[sid2][dk] = staged.ranks[sid2][dk] || [];
+        if (rl.indexOf(mid) < 0) {
+          var at = rl.length;
+          for (var i = 0; i < rl.length; i++) {
+            if (modelIndex(rl[i]) > modelIndex(mid)) { at = i; break; }
+          }
+          rl.splice(at, 0, mid);
         }
-        staged.ranks[sid2].splice(at, 0, mid);
-      }
+      });
       op('add-output', sid2 + ' · ' + mid);
       renderSample(sid2);
       renderMeta();
@@ -1732,9 +2161,143 @@ if (tb) {
   })();
 })();
 
+/* ================= sample viewer（样本区单页翻动） ================= */
+var curPage = -1, pickT = -1, pickO = null;
+function pad4(n) { return ('0000' + n).slice(-4); }
+function showPage(i, dir) {
+  var cards = $$('article.card');
+  i = Math.max(0, Math.min(cards.length - 1, i));
+  if (i === curPage) return;
+  var back = dir !== undefined ? dir < 0 : i < curPage;
+  curPage = i;
+  cards.forEach(function (c, k) {
+    var on = k === i;
+    c.classList.toggle('active', on);
+    if (on) c.style.setProperty('--pgx', back ? '-26px' : '26px');
+  });
+  var pick = $('#btn-pick');
+  if (pick) pick.innerHTML = '<b>#' + pad4(i + 1) + '</b><span class="vb-sep">/ ' + pad4(cards.length) + '</span><span class="vb-caret">▾</span>';
+  var prev = $('#pg-prev'), next = $('#pg-next');
+  if (prev) prev.disabled = i === 0;
+  if (next) next.disabled = i === cards.length - 1;
+}
+function goToPage(p) {
+  p = Math.max(1, Math.min(sampleIds.length, p));
+  showPage(p - 1, p - 1 >= curPage ? 1 : -1);
+  var bar = $('.viewer-bar'), tb = $('.topbar');
+  if (bar) {
+    var y = bar.getBoundingClientRect().top + window.scrollY - ((tb ? tb.offsetHeight : 0) + 14);
+    window.scrollTo({ top: Math.max(0, y), behavior: reduce ? 'auto' : 'smooth' });
+  }
+}
+function stepPage(d) { goToPage(curPage + 1 + d); }
+function openPicker(presetT, presetO) {
+  var n = sampleIds.length, page = curPage + 1;
+  var ct = Math.floor(page / 10), co = page % 10;
+  pickT = (presetT !== undefined) ? presetT : ct;
+  pickO = (presetO !== undefined) ? presetO : (pickT === ct ? co : null);
+  var tens = '', ones = '';
+  for (var t = 0; t <= 9; t++) {
+    var tOk = t <= Math.floor(n / 10);
+    tens += '<button type="button" class="dig' + (t === pickT ? ' active' : '') + '" data-pg-t="' + t + '"' + (tOk ? '' : ' disabled') + '>' + t + '</button>';
+  }
+  for (var o = 0; o <= 9; o++) {
+    var pg = 10 * pickT + o;
+    var oOk = pg >= 1 && pg <= n;
+    ones += '<button type="button" class="dig' + (pickO === o ? ' active' : '') + '" data-pg-o="' + o + '"' + (oOk ? '' : ' disabled') + '>' + o + '</button>';
+  }
+  /* 十位+个位选定后需点确认才跳转，避免误选；与当前页相同则不可确认 */
+  var target = pickO == null ? 0 : 10 * pickT + pickO;
+  var goOk = pickO != null && target >= 1 && target <= n && target !== page;
+  var goLbl = goOk ? '跳转到 #' + pad4(target)
+    : (pickO != null && target === page ? '已在 #' + pad4(page) : '选好序号后确认跳转');
+  openPop('<p class="pop-label">跳转到样本：选十位、个位后点确认</p>' +
+    '<div class="digrow">' + tens + '</div><div class="digrow">' + ones + '</div>' +
+    '<button type="button" class="pop-btn ok" id="pg-go"' + (goOk ? '' : ' disabled') + '>' + goLbl + '</button>', $('#btn-pick'));
+  /* openPop 按锚点左缘定位，面板比键宽会向右探出；这里改成与胶囊键右缘对齐，
+     并在 resize（滚动条出现/消失会改视口宽）时重对齐，面板关了自动摘掉监听 */
+  var realign = function () {
+    if (!pop.classList.contains('open')) { window.removeEventListener('resize', realign); return; }
+    var b2 = $('#btn-pick').getBoundingClientRect();
+    pop.style.left = Math.max(8, b2.right - pop.offsetWidth) + 'px';
+  };
+  realign();
+  window.addEventListener('resize', realign);
+}
+$('#btn-pick').addEventListener('click', function () { openPicker(); });
+$('#pg-prev').addEventListener('click', function () { stepPage(-1); });
+$('#pg-next').addEventListener('click', function () { stepPage(1); });
+/* 键盘 ← → 翻页（输入框 / 换色板 / 弹窗 / 大图浏览打开时不抢键） */
+document.addEventListener('keydown', function (e) {
+  if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+  if ((dlg && dlg.open) || (pop && pop.classList.contains('open'))) return;
+  var lx = document.getElementById('lightbox');
+  if (lx && lx.classList.contains('open')) return;
+  var t = e.target;
+  if (t && t.closest && t.closest('input,[contenteditable="true"]')) return;
+  stepPage(e.key === 'ArrowLeft' ? -1 : 1);
+});
+
+/* ================= 大图浏览（点击输出图片；黑底半透明，左右翻模型） ================= */
+var lightbox = $('#lightbox'), lbxIdx = 0, lbxList = [];
+function renderLightbox() {
+  var sid = sampleIds[curPage];
+  var o = (staged.outputs[sid] || [])[lbxIdx];
+  if (!o) { closeLightbox(); return; }
+  var m = getModel(o.model);
+  $('#lbx-card').innerHTML =
+    '<div class="lbx-hd">' + iconHtml(m || { color: DEFAULT_COLOR, icon: null }, 20) +
+    '<span class="nm">' + esc(displayName(m) || o.model) + '</span>' +
+    '<span class="ms">' + esc(o.ms || '—') + '</span>' +
+    '<span class="lbx-count">' + (lbxIdx + 1) + ' / ' + lbxList.length + '</span>' +
+    '<button type="button" class="lbx-close" id="lbx-close" aria-label="关闭">×</button></div>' +
+    '<div class="lbx-ph"><img src="' + esc(o.src) + '" alt="' + esc(displayName(m) || o.model) + '"></div>';
+  $('#lbx-prev').disabled = lbxIdx === 0;
+  $('#lbx-next').disabled = lbxIdx === lbxList.length - 1;
+}
+function openLightbox(mid) {
+  var sid = sampleIds[curPage];
+  lbxList = (staged.outputs[sid] || []).map(function (o) { return o.model; });
+  lbxIdx = Math.max(0, lbxList.indexOf(mid));
+  if (!lbxList.length) return;
+  lightbox.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  renderLightbox();
+}
+function closeLightbox() { lightbox.classList.remove('open'); document.body.style.overflow = ''; }
+function lbxStep(d) {
+  var n = lbxIdx + d;
+  if (n < 0 || n >= lbxList.length) return;
+  lbxIdx = n;
+  renderLightbox();
+}
+document.addEventListener('click', function (e) {
+  if (e.target === lightbox) { closeLightbox(); return; }
+  if (e.target.closest('#lbx-close')) { closeLightbox(); return; }
+  if (e.target.closest('#lbx-prev')) { lbxStep(-1); return; }
+  if (e.target.closest('#lbx-next')) { lbxStep(1); return; }
+  var out = e.target.closest('.out');
+  if (out && !e.target.closest('.out-remove') && !e.target.closest('.ms-pill')) {
+    var rm = out.querySelector('[data-remove-model]');
+    if (rm) openLightbox(rm.getAttribute('data-remove-model'));
+  }
+});
+document.addEventListener('keydown', function (e) {
+  if (!lightbox.classList.contains('open')) return;
+  if (e.key === 'Escape') { closeLightbox(); return; }
+  if (e.key === 'ArrowLeft') { lbxStep(-1); e.preventDefault(); }
+  if (e.key === 'ArrowRight') { lbxStep(1); e.preventDefault(); }
+});
+/* 雷达卡模型翻页（卡片每次重渲染，按钮用事件委托） */
+document.addEventListener('click', function (e) {
+  if (e.target.closest('#rd-prev')) { radarStep(-1); return; }
+  if (e.target.closest('#rd-next')) radarStep(1);
+});
+
 /* ================= boot ================= */
 bootState();
 renderAll();
+showPage(0, 1);
 armCharts();
 initHeroEdit();
 })();
