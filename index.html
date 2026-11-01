@@ -183,9 +183,26 @@ body.editing .model-card,.rank-chip{user-select:none;-webkit-user-select:none}
 /* ---------- input tiles ---------- */
 .tiles{display:flex;gap:14px;flex-wrap:wrap}
 .tile{width:140px;border:1px solid var(--outline-2);border-radius:var(--r-md);overflow:hidden;
-  background:var(--grey-0);flex:0 0 auto;transition:border-color .15s ease-out,box-shadow .15s ease-out,transform .15s ease-out}
+  background:var(--grey-0);flex:0 0 auto;position:relative;
+  transition:border-color .15s ease-out,box-shadow .15s ease-out,transform .15s ease-out}
 .tile:hover{transform:translateY(-2px);border-color:var(--outline)}
 .tile.ref-hl{border-color:var(--grey-1200);box-shadow:0 0 0 3px rgba(18,19,23,.08)}
+.tile-add{width:140px;align-self:flex-start;border:1.5px dashed var(--grey-300);border-radius:var(--r-md);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+  color:var(--text-2);cursor:pointer;min-height:190px;background:transparent;font:inherit;
+  transition:all .15s ease-out;padding:10px}
+.tile-add:hover{background:var(--grey-10);border-color:var(--grey-800);color:var(--text)}
+.tile-add:disabled{opacity:.5;cursor:default}
+.tile-add:disabled:hover{background:transparent;border-color:var(--grey-300);color:var(--text-2)}
+.tile-add .plus{font-size:22px;font-weight:300;line-height:1}
+.tile-remove{display:none;position:absolute;top:6px;right:6px;width:24px;height:24px;
+  border-radius:var(--r-pill);background:rgba(255,255,255,.92);border:1px solid var(--outline-2);
+  color:var(--text-2);font-size:14px;line-height:1;align-items:center;justify-content:center;
+  cursor:pointer;transition:all .15s ease-out;z-index:2;padding:0}
+.tile-remove:hover{color:var(--danger);border-color:rgba(217,48,37,.4)}
+body.editing .tile:hover .tile-remove{display:inline-flex}
+body.editing .cap .txt{cursor:text;outline:1px dashed var(--grey-300);outline-offset:4px;border-radius:4px}
+body.editing .cap .txt:focus{outline:2px solid var(--text)}
 .tile .ph{height:140px;background:var(--grey-10);display:flex;align-items:center;justify-content:center;overflow:hidden}
 .tile img{max-width:100%;max-height:140px;display:block;margin:0 auto}
 .tile .lb{padding:8px 10px;border-top:1px solid var(--outline-2);font-size:12.5px;line-height:1.4;
@@ -637,6 +654,22 @@ function bootState() {
   });
   if (!DATA_IS_FILE && local) toast('未找到 gallery.data.js，已从浏览器暂存恢复');
   staged = clone(committed);
+  /* 输入/Prompt 种子迁移：数据缺省时从模板静态瓦片与 Prompt 文本收编（保存后落盘） */
+  sampleIds.forEach(function (id) {
+    var card = $('article[data-sample="' + id + '"]');
+    if (!card) return;
+    if (!staged.inputs[id] || !staged.inputs[id].length) {
+      staged.inputs[id] = $$('.tile', card).map(function (t) {
+        var img = $('img', t);
+        return { src: img ? img.getAttribute('src') : '' };
+      }).filter(function (t) { return t.src; });
+    }
+    if (!staged.prompts[id]) {
+      var txt = $('.cap .txt', card);
+      staged.prompts[id] = txt ? txt.textContent.replace(/\r\n/g, '\n') : '';
+    }
+  });
+  committed = clone(staged);
 }
 var EMPTY_STATE = { v: 1, models: [], outputs: {}, ranks: {}, meta: { ds: '', n: '' } };
 function modelIdxOf(list, mid) {
@@ -672,9 +705,18 @@ function normalizeState(raw) {
     });
     ranks[id] = rk;
   });
+  /* 输入瓦片与 Prompt：数据驱动（旧数据缺省时 boot 从模板种子收编） */
+  var inputs = {}, prompts = {};
+  sampleIds.forEach(function (id) {
+    inputs[id] = ((raw.inputs && raw.inputs[id]) || []).filter(function (t) {
+      return t && typeof t.src === 'string' && t.src;
+    }).map(function (t) { return { src: t.src }; });
+    var pr = raw.prompts && raw.prompts[id];
+    prompts[id] = typeof pr === 'string' ? pr : '';
+  });
   var meta = (raw.meta && raw.meta.ds) ? { ds: String(raw.meta.ds), n: String(raw.meta.n == null ? '' : raw.meta.n) }
     : { ds: '', n: '' };
-  return { v: 1, models: models, outputs: outputs, ranks: ranks, meta: meta };
+  return { v: 1, models: models, outputs: outputs, ranks: ranks, inputs: inputs, prompts: prompts, meta: meta };
 }
 function readLocal() {
   try {
@@ -762,6 +804,37 @@ function outCardHtml(o, editMode) {
 function renderSample(id) {
   var card = $('article[data-sample="' + id + '"]');
   if (!card) return;
+  /* Prompt 未失焦的进行中内容先收编，避免重渲染吞掉正在输入的文本 */
+  var txtEl = $('.cap .txt', card);
+  if (editing && txtEl && txtEl.isContentEditable) {
+    staged.prompts[id] = (txtEl.innerText || '').replace(/\r\n/g, '\n');
+  }
+  /* 输入瓦片：数据驱动，第 1 张为 source；编辑态可删可加，总量上限 = Hero 样本量 */
+  var inputs = staged.inputs[id] || (staged.inputs[id] = []);
+  var cap = parseInt(staged.meta.n, 10);
+  var capLeft = (!isNaN(cap) && cap > 0) ? Math.max(0, cap - inputs.length) : null;
+  $('.tiles', card).innerHTML = inputs.map(function (t, i) {
+    return '<div class="tile' + (i === 0 ? ' src' : '') + '" data-img="' + (i + 1) + '">' +
+      '<span class="ph"><img src="' + esc(t.src) + '" loading="lazy"></span>' +
+      '<span class="lb"><b>[Image ' + (i + 1) + ']</b></span>' +
+      (editing ? '<button type="button" class="tile-remove" data-remove-input="' + i + '" title="移除该输入" aria-label="移除该输入">×</button>' : '') +
+      '</div>';
+  }).join('') + (editing ? '<button type="button" class="tile-add" data-add-input="' + id + '"' +
+    (capLeft === 0 ? ' disabled title="输入数量已达上限（' + cap + '，与 Hero 样本量一致）"' : '') +
+    '><span class="plus">+</span><span>添加输入' + (capLeft != null ? '（余 ' + capLeft + '）' : '') + '</span></button>' : '');
+  /* Prompt：编辑态裸文本可改写；浏览态仅完全一致的 [Image x]（x 对应现有瓦片）包联动样式 */
+  if (txtEl) {
+    if (editing) {
+      txtEl.contentEditable = 'true';
+      txtEl.spellcheck = false;
+      txtEl.textContent = staged.prompts[id] || '';
+    } else {
+      txtEl.contentEditable = 'false';
+      txtEl.innerHTML = esc(staged.prompts[id] || '').replace(/\[Image (\d+)\]/g, function (all, n) {
+        return (+n >= 1 && +n <= inputs.length) ? '<span class="ref">' + all + '</span>' : all;
+      });
+    }
+  }
   var outs = (staged.outputs[id] || []).slice().sort(function (a, b) { return modelIndex(a.model) - modelIndex(b.model); });
   staged.outputs[id] = outs;
   var grid = $('.outs', card);
@@ -1262,6 +1335,25 @@ function commitHeroPart(el) {
   op('hero-meta', raw);
   renderHeroText();
   el.textContent = raw;
+  if (key === 'n') refreshInputCaps();   // 输入数量上限与 Hero 样本量即时同步
+}
+/* 输入上限变化后，定点刷新各卡的「添加输入」按钮（不整卡重渲染） */
+function refreshInputCaps() {
+  var cap = parseInt(staged.meta.n, 10);
+  $$('article.card').forEach(function (card) {
+    var list = (staged.inputs[card.getAttribute('data-sample')] || []).length;
+    var left = (!isNaN(cap) && cap > 0) ? Math.max(0, cap - list) : null;
+    var btn = $('.tile-add', card);
+    if (!btn) return;
+    if (left === 0) {
+      btn.disabled = true;
+      btn.setAttribute('title', '输入数量已达上限（' + cap + '，与 Hero 样本量一致）');
+    } else {
+      btn.disabled = false;
+      btn.removeAttribute('title');
+    }
+    btn.innerHTML = '<span class="plus">+</span><span>添加输入' + (left != null ? '（余 ' + left + '）' : '') + '</span>';
+  });
 }
 
 /* ================= drag (long-press or press-move reorder; tap = click) ================= */
@@ -1857,8 +1949,67 @@ function openDlgAddModel() {
   });
 }
 
-/* ================= per-sample outputs ================= */
+/* ================= per-sample outputs & inputs ================= */
 document.addEventListener('click', function (e) {
+  /* 输入：打开添加面板（Source 插首 / Ref 追加），总量上限 = Hero 样本量 */
+  var addIn = e.target.closest('[data-add-input]');
+  if (addIn) {
+    var sidA = addIn.getAttribute('data-add-input');
+    var listA = staged.inputs[sidA] || (staged.inputs[sidA] = []);
+    var capA = parseInt(staged.meta.n, 10);
+    if (!isNaN(capA) && capA > 0 && listA.length >= capA) {
+      toast('输入数量已达上限（' + capA + '，与 Hero 样本量一致）');
+      return;
+    }
+    openPop(
+      '<button type="button" class="pop-btn pick" data-add-src="' + esc(sidA) + '">添加 Source（插入为第 1 张）</button>' +
+      '<button type="button" class="pop-btn pick" data-add-ref="' + esc(sidA) + '">添加 Ref（追加到末尾）</button>', addIn);
+    return;
+  }
+  var addSrc = e.target.closest('[data-add-src]');
+  if (addSrc) {
+    var sidS = addSrc.getAttribute('data-add-src');
+    closePop();
+    pickImage(function (dataUrl) {
+      if (!dataUrl) { toast('图片读取失败'); return; }
+      var listS = staged.inputs[sidS] || (staged.inputs[sidS] = []);
+      var capS = parseInt(staged.meta.n, 10);
+      if (!isNaN(capS) && capS > 0 && listS.length >= capS) { toast('输入数量已达上限（' + capS + '，与 Hero 样本量一致）'); return; }
+      listS.unshift({ src: dataUrl });
+      op('add-input', sidS + ' · source');
+      renderSample(sidS);
+    });
+    return;
+  }
+  var addRef = e.target.closest('[data-add-ref]');
+  if (addRef) {
+    var sidR = addRef.getAttribute('data-add-ref');
+    closePop();
+    pickImage(function (dataUrl) {
+      if (!dataUrl) { toast('图片读取失败'); return; }
+      var listR = staged.inputs[sidR] || (staged.inputs[sidR] = []);
+      var capR = parseInt(staged.meta.n, 10);
+      if (!isNaN(capR) && capR > 0 && listR.length >= capR) { toast('输入数量已达上限（' + capR + '，与 Hero 样本量一致）'); return; }
+      listR.push({ src: dataUrl });
+      op('add-input', sidR + ' · ref');
+      renderSample(sidR);
+    });
+    return;
+  }
+  var rmIn = e.target.closest('[data-remove-input]');
+  if (rmIn) {
+    var idxI = +rmIn.getAttribute('data-remove-input');
+    var cardI = rmIn.closest('article.card');
+    if (!cardI) return;
+    var sidI = cardI.getAttribute('data-sample');
+    var listI = staged.inputs[sidI] || (staged.inputs[sidI] = []);
+    if (idxI >= 0 && idxI < listI.length) {
+      listI.splice(idxI, 1);
+      op('remove-input', sidI + ' · [Image ' + (idxI + 1) + ']');
+      renderSample(sidI);
+    }
+    return;
+  }
   var add = e.target.closest('[data-add-out]');
   if (add) {
     var sid = add.getAttribute('data-add-out');
@@ -1952,6 +2103,26 @@ document.addEventListener('keydown', function (e) {
     el.blur();
   }
 });
+/* Prompt 就地编辑：失焦提交（空则还原），Esc 放弃本次修改（先重置文本再失焦，避免被收编） */
+document.addEventListener('keydown', function (e) {
+  var el = e.target;
+  if (e.key === 'Escape' && el && el.classList && el.classList.contains('txt') && el.isContentEditable) {
+    var cardE = el.closest('article.card');
+    if (cardE) el.textContent = staged.prompts[cardE.getAttribute('data-sample')] || '';
+    el.blur();
+  }
+});
+document.addEventListener('focusout', function (e) {
+  var el = e.target;
+  if (!el || !el.classList || !el.classList.contains('txt') || !el.isContentEditable) return;
+  var card = el.closest('article.card');
+  if (!card) return;
+  var sid = card.getAttribute('data-sample');
+  var raw = (el.innerText || '').replace(/\r\n/g, '\n');
+  if (!raw.trim()) { toast('Prompt 不能为空'); renderSample(sid); return; }
+  if (raw !== staged.prompts[sid]) { staged.prompts[sid] = raw; op('prompt', sid); }
+  renderSample(sid);
+});
 
 /* ================= [Image N] hover → tile highlight (scoped per card) ================= */
 document.addEventListener('mouseover', function (e) {
@@ -1975,13 +2146,9 @@ document.addEventListener('mouseout', function (e) {
   if (tile) tile.classList.remove('ref-hl');
 });
 
-/* ================= prompt ref highlight ================= */
-$$('.cap .txt').forEach(function (el) {
-  var raw = el.textContent;
-  el.innerHTML = esc(raw).replace(/\[Image[ _]\d+\]/g, function (m) {
-    return '<span class="ref">' + m + '</span>';
-  });
-});
+/* ================= [Image x] 联动说明 =================
+   Prompt 里的引用在 renderSample 中只对完全一致的「[Image x]」（大写 Image、单空格、x 对应现有瓦片）
+   包 .ref 联动样式；其余写法（[image 2]、[Image_3]、越界编号）一律按普通文本渲染，不触发高亮。 */
 
 /* ================= reveal + topbar shadow ================= */
 if ('IntersectionObserver' in window && !reduce) {
